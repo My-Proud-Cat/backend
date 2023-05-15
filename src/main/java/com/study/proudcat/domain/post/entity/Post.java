@@ -3,13 +3,12 @@ package com.study.proudcat.domain.post.entity;
 import com.study.proudcat.domain.user.entity.User;
 import com.study.proudcat.infra.entity.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString
 @Table(name = "post")
 public class Post extends BaseTimeEntity {
 
@@ -19,6 +18,7 @@ public class Post extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @ToString.Exclude
     private User user;
 
     @Column(length = 500, nullable = false)
@@ -33,6 +33,10 @@ public class Post extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 
     @Builder
     public Post(User user, String title, String describe) {
