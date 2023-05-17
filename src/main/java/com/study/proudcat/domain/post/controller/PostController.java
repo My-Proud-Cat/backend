@@ -1,6 +1,7 @@
 package com.study.proudcat.domain.post.controller;
 
 import com.study.proudcat.domain.post.dto.request.WritePostReqeust;
+import com.study.proudcat.domain.post.dto.response.FindPostResponse;
 import com.study.proudcat.domain.post.dto.response.FindPostsResponse;
 import com.study.proudcat.domain.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,5 +27,11 @@ public class PostController {
     @GetMapping
     public ResponseEntity<FindPostsResponse> getAllPosts() {
         return ResponseEntity.ok(postService.getAllPosts());
+    }
+
+    @Operation(summary = "게시물 상세 조회", description = "게시물 상세 조회 메서드입니다.")
+    @GetMapping("/{postId}")
+    public ResponseEntity<FindPostResponse> getPostById(@PathVariable("postId") Long postId) {
+        return ResponseEntity.ok(postService.getPostById(postId));
     }
 }

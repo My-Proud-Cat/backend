@@ -43,4 +43,13 @@ public class PostService {
 
         return new FindPostsResponse(posts);
     }
+
+    @Transactional
+    public FindPostResponse getPostById(Long postId) {
+        log.info("PostService getPostById run..");
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+
+        return FindPostResponse.from(post);
+    }
 }
