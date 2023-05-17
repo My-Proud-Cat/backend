@@ -5,6 +5,8 @@ import com.study.proudcat.infra.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Objects;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -45,5 +47,14 @@ public class Post extends BaseTimeEntity {
         this.describe = describe;
         this.view = 0;
         this.status = Status.REGISTERED;
+    }
+
+    public boolean isSameWriter(String email) {
+        return Objects.equals(this.user.getEmail(), email);
+    }
+
+    public void modify(String title, String describe) {
+        this.title = title;
+        this.describe = describe;
     }
 }

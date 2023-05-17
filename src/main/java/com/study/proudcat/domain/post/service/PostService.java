@@ -1,6 +1,7 @@
 package com.study.proudcat.domain.post.service;
 
-import com.study.proudcat.domain.post.dto.request.WritePostReqeust;
+import com.study.proudcat.domain.post.dto.request.ModifyPostRequest;
+import com.study.proudcat.domain.post.dto.request.WritePostRequest;
 import com.study.proudcat.domain.post.dto.response.FindPostResponse;
 import com.study.proudcat.domain.post.dto.response.FindPostsResponse;
 import com.study.proudcat.domain.post.entity.Post;
@@ -23,7 +24,7 @@ public class PostService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void writePost(WritePostReqeust request) {
+    public void writePost(WritePostRequest request) {
         log.info("PostService writePost run..");
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -51,5 +52,18 @@ public class PostService {
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
 
         return FindPostResponse.from(post);
+    }
+
+    @Transactional
+    public void modifyPost(Long postId, ModifyPostRequest request) {
+        log.info("PostService modifyPost run..");
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+
+        if (!post.isSameWriter(request.getEmail())) {
+            throw new IllegalArgumentException("You are not the writer of this post");
+        }
+
+        post.modify(request.getTitle(), request.getDescribe());
     }
 }

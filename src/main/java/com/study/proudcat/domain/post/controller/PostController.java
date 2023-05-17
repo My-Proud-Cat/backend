@@ -1,6 +1,7 @@
 package com.study.proudcat.domain.post.controller;
 
-import com.study.proudcat.domain.post.dto.request.WritePostReqeust;
+import com.study.proudcat.domain.post.dto.request.ModifyPostRequest;
+import com.study.proudcat.domain.post.dto.request.WritePostRequest;
 import com.study.proudcat.domain.post.dto.response.FindPostResponse;
 import com.study.proudcat.domain.post.dto.response.FindPostsResponse;
 import com.study.proudcat.domain.post.service.PostService;
@@ -18,7 +19,7 @@ public class PostController {
 
     @Operation(summary = "게시물 작성", description = "게시물 작성 메서드입니다.")
     @PostMapping
-    public ResponseEntity<Void> writePost(@RequestBody WritePostReqeust request) {
+    public ResponseEntity<Void> writePost(@RequestBody WritePostRequest request) {
         postService.writePost(request);
         return ResponseEntity.noContent().build();
     }
@@ -33,5 +34,12 @@ public class PostController {
     @GetMapping("/{postId}")
     public ResponseEntity<FindPostResponse> getPostById(@PathVariable("postId") Long postId) {
         return ResponseEntity.ok(postService.getPostById(postId));
+    }
+
+    @Operation(summary = "게시물 수정", description = "게시물 수정 메소드입니다.")
+    @PutMapping("/{postId}")
+    public ResponseEntity<Void> modifyPost(@PathVariable("postId") Long postId, @RequestBody ModifyPostRequest request) {
+        postService.modifyPost(postId, request);
+        return ResponseEntity.noContent().build();
     }
 }
