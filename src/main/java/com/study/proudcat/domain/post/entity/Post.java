@@ -57,4 +57,8 @@ public class Post extends BaseTimeEntity {
         this.title = title;
         this.describe = describe;
     }
+
+    public void delete() {
+        this.status = Status.DELETED;
+    }
 }

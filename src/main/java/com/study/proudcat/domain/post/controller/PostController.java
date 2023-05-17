@@ -42,4 +42,11 @@ public class PostController {
         postService.modifyPost(postId, request);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "게시물 삭제", description = "게시물 삭제 메소드입니다.")
+    @PatchMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable("postId") Long postId) {
+        postService.deletePost(postId);
+        return ResponseEntity.noContent().build();
+    }
 }

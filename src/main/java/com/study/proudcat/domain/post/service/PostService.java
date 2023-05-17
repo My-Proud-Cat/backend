@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -34,7 +35,7 @@ public class PostService {
         postRepository.save(request.toEntity(user));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public FindPostsResponse getAllPosts() {
         log.info("PostService getAllPosts run..");
         List<FindPostResponse> posts = postRepository.findAll()
@@ -45,11 +46,10 @@ public class PostService {
         return new FindPostsResponse(posts);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public FindPostResponse getPostById(Long postId) {
         log.info("PostService getPostById run..");
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+        Post post = getPostEntity(postId);
 
         return FindPostResponse.from(post);
     }
@@ -57,13 +57,24 @@ public class PostService {
     @Transactional
     public void modifyPost(Long postId, ModifyPostRequest request) {
         log.info("PostService modifyPost run..");
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
-
+        Post post = getPostEntity(postId);
         if (!post.isSameWriter(request.getEmail())) {
             throw new IllegalArgumentException("You are not the writer of this post");
         }
 
         post.modify(request.getTitle(), request.getDescribe());
+    }
+
+    @Transactional
+    public void deletePost(Long postId) {
+        log.info("PostService deletePost run..");
+        Post post = getPostEntity(postId);
+
+        post.delete();
+    }
+
+    private Post getPostEntity(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
     }
 }
