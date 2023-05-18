@@ -1,11 +1,8 @@
 package com.study.proudcat.domain.post.entity;
 
-import com.study.proudcat.domain.user.entity.User;
 import com.study.proudcat.infra.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.Objects;
 
 @Entity
 @Getter
@@ -17,11 +14,6 @@ public class Post extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    @ToString.Exclude
-    private User user;
 
     @Column(length = 500, nullable = false)
     private String title;
@@ -36,21 +28,12 @@ public class Post extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     @Builder
-    public Post(User user, String title, String describe) {
-        this.user = user;
+    public Post(String title, String describe) {
         this.title = title;
         this.describe = describe;
         this.view = 0;
         this.status = Status.REGISTERED;
-    }
-
-    public boolean isSameWriter(String email) {
-        return Objects.equals(this.user.getEmail(), email);
     }
 
     public void modify(String title, String describe) {

@@ -6,7 +6,6 @@ import com.study.proudcat.domain.post.dto.response.FindPostResponse;
 import com.study.proudcat.domain.post.dto.response.FindPostsResponse;
 import com.study.proudcat.domain.post.entity.Post;
 import com.study.proudcat.domain.post.repository.PostRepository;
-import com.study.proudcat.domain.user.entity.User;
 import com.study.proudcat.domain.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -22,17 +20,11 @@ import java.util.Objects;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
 
     @Transactional
     public void writePost(WritePostRequest request) {
         log.info("PostService writePost run..");
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        Post post = request.toEntity(user);
-        log.info("Post : {}", post);
-        postRepository.save(request.toEntity(user));
+        postRepository.save(request.toEntity());
     }
 
     @Transactional(readOnly = true)
@@ -58,9 +50,6 @@ public class PostService {
     public void modifyPost(Long postId, ModifyPostRequest request) {
         log.info("PostService modifyPost run..");
         Post post = getPostEntity(postId);
-        if (!post.isSameWriter(request.getEmail())) {
-            throw new IllegalArgumentException("You are not the writer of this post");
-        }
 
         post.modify(request.getTitle(), request.getDescribe());
     }

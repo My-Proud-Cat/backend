@@ -6,14 +6,11 @@ import lombok.*;
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ModifyPostRequest {
-
-    private String email;
     private String title;
     private String describe;
 
     @Builder
-    public ModifyPostRequest(String email, String title, String describe) {
-        this.email = email;
+    public ModifyPostRequest( String title, String describe) {
         this.title = title;
         this.describe = describe;
     }
