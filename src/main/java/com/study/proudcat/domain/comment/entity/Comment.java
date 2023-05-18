@@ -1,5 +1,6 @@
 package com.study.proudcat.domain.comment.entity;
 
+import com.study.proudcat.domain.comment.dto.CommentRequest;
 import com.study.proudcat.domain.post.entity.Post;
 import com.study.proudcat.infra.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -11,7 +12,7 @@ import java.util.Set;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(exclude = {"post"})
+@ToString
 public class Comment extends BaseTimeEntity {
 
     @Id
@@ -45,6 +46,13 @@ public class Comment extends BaseTimeEntity {
         this.content = content;
         this.post = post;
         this.childComments = childComments;
+    }
+
+    public static Comment of(CommentRequest request, Post post) {
+        return Comment.builder()
+                .content(request.getContent())
+                .post(post)
+                .build();
     }
 
     public void addChildComment(Comment child) {
