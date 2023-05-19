@@ -23,4 +23,14 @@ public class CommentController {
         commentService.writeComment(postId, request);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "댓글 삭제", description = "댓글을 삭제하는 메서드입니다.")
+    @DeleteMapping("{postId}/comment/{commentId}")
+    public ResponseEntity<Void> deleteComment(
+            @PathVariable(name = "postId") Long postId,
+            @PathVariable(name = "commentId") Long commentId
+    ) {
+        commentService.deleteComment(postId, commentId);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -40,5 +40,23 @@ public class CommentService {
         commentRepository.save(comment);
     }
 
+    @Transactional
+    public void deleteComment(Long postId, Long commentId) {
+        log.info("Comment service deleteComment run..");
+        Comment comment = errorCheckComment(postId, commentId);
+        commentRepository.delete(comment);
+    }
 
+    private Comment errorCheckComment(Long postId, Long commentId) {
+        log.info("Comment service errorCheckComment run..");
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("post not found"));
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
+
+        if (!comment.getPost().getId().equals(post.getId())) {
+            throw new IllegalArgumentException("no target");
+        }
+        return comment;
+    }
 }
