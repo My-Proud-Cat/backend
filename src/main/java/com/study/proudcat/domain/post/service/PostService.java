@@ -4,9 +4,9 @@ import com.study.proudcat.domain.post.dto.request.ModifyPostRequest;
 import com.study.proudcat.domain.post.dto.request.WritePostRequest;
 import com.study.proudcat.domain.post.dto.response.FindPostResponse;
 import com.study.proudcat.domain.post.dto.response.FindPostsResponse;
+import com.study.proudcat.domain.post.dto.response.PostWithComments;
 import com.study.proudcat.domain.post.entity.Post;
 import com.study.proudcat.domain.post.repository.PostRepository;
-import com.study.proudcat.domain.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -44,6 +44,13 @@ public class PostService {
         Post post = getPostEntity(postId);
 
         return FindPostResponse.from(post);
+    }
+
+    @Transactional(readOnly = true)
+    public PostWithComments getPostWithCommentsById(Long postId) {
+        log.info("PostService getPostWithCommentsById run..");
+        Post post = getPostEntity(postId);
+        return PostWithComments.from(post);
     }
 
     @Transactional

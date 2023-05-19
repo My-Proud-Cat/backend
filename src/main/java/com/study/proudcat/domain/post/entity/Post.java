@@ -1,8 +1,12 @@
 package com.study.proudcat.domain.post.entity;
 
+import com.study.proudcat.domain.comment.entity.Comment;
 import com.study.proudcat.infra.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -27,6 +31,14 @@ public class Post extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private List<Comment> comments = new ArrayList<>();
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
 
     @Builder
     public Post(String title, String describe) {

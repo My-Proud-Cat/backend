@@ -23,10 +23,10 @@ public class Comment extends BaseTimeEntity {
     @Column(name = "parent_id", updatable = false)
     private Long parentId;
 
+    @Lob
     @Column(nullable = false)
     private String content;
 
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     @ToString.Exclude
