@@ -1,0 +1,49 @@
+package com.study.proudcat.domain.post.service;
+
+import com.study.proudcat.domain.post.entity.Heart;
+import com.study.proudcat.domain.post.entity.Post;
+import com.study.proudcat.domain.post.repository.HeartRepository;
+import com.study.proudcat.domain.post.repository.PostRepository;
+import com.study.proudcat.domain.user.entity.User;
+import com.study.proudcat.domain.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class HeartService {
+
+    private final HeartRepository heartRepository;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
+
+    @Transactional
+    public void pushHeartBtn(Long postId, Long userId)  {
+        log.info("Heart service addHeart run..");
+        Post post = getPostById(postId);
+        User user = getUserById(userId);
+
+        heartRepository.findHeartByPostAndUser(post, user)
+                .ifPresentOrElse(
+                        heartRepository::delete,
+                        () -> heartRepository.save(Heart.builder()
+                                .post(post)
+                                .user(user)
+                                .build())
+                );
+
+    }
+
+    private Post getPostById(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+    }
+
+    private User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    }
+}
