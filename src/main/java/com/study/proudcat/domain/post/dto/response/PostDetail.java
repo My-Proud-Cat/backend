@@ -11,15 +11,16 @@ import java.util.stream.Collectors;
 
 @Getter
 @Builder
-public class PostWithComments {
+public class PostDetail {
 
     private final Long postId;
     private final String title;
     private final String describe;
     private final Set<CommentDetail> commentDetails;
+    private final int heartCnt;
 
-    public static PostWithComments from(Post post) {
-        return PostWithComments.builder()
+    public static PostDetail from(Post post) {
+        return PostDetail.builder()
                 .postId(post.getId())
                 .title(post.getTitle())
                 .describe(post.getDescribe())
@@ -27,6 +28,7 @@ public class PostWithComments {
                         .stream()
                         .map(CommentDetail::from)
                         .collect(Collectors.toCollection(LinkedHashSet::new)))
+                .heartCnt(post.getHearts().size())
                 .build();
     }
 }

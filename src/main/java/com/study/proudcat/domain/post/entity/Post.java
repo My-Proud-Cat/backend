@@ -5,8 +5,7 @@ import com.study.proudcat.infra.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -34,18 +33,21 @@ public class Post extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
-    private List<Comment> comments = new ArrayList<>();
+    private Set<Comment> comments;
 
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
+    @OneToMany(mappedBy = "post")
+    @ToString.Exclude
+    private Set<Heart> hearts;
+
 
     @Builder
-    public Post(String title, String describe) {
+    public Post(String title, String describe, Set<Comment> comments, Set<Heart> hearts) {
         this.title = title;
         this.describe = describe;
         this.view = 0;
         this.status = Status.REGISTERED;
+        this.comments = comments;
+        this.hearts = hearts;
     }
 
     public void modify(String title, String describe) {

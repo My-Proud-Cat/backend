@@ -4,7 +4,7 @@ import com.study.proudcat.domain.post.dto.request.ModifyPostRequest;
 import com.study.proudcat.domain.post.dto.request.WritePostRequest;
 import com.study.proudcat.domain.post.dto.response.FindPostResponse;
 import com.study.proudcat.domain.post.dto.response.FindPostsResponse;
-import com.study.proudcat.domain.post.dto.response.PostWithComments;
+import com.study.proudcat.domain.post.dto.response.PostDetail;
 import com.study.proudcat.domain.post.entity.Post;
 import com.study.proudcat.domain.post.repository.PostRepository;
 import lombok.AllArgsConstructor;
@@ -47,10 +47,10 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostWithComments getPostWithCommentsById(Long postId) {
+    public PostDetail getPostWithCommentsById(Long postId) {
         log.info("PostService getPostWithCommentsById run..");
         Post post = getPostEntity(postId);
-        return PostWithComments.from(post);
+        return PostDetail.from(post);
     }
 
     @Transactional

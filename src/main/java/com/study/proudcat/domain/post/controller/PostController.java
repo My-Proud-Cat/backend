@@ -4,7 +4,7 @@ import com.study.proudcat.domain.post.dto.request.ModifyPostRequest;
 import com.study.proudcat.domain.post.dto.request.WritePostRequest;
 import com.study.proudcat.domain.post.dto.response.FindPostResponse;
 import com.study.proudcat.domain.post.dto.response.FindPostsResponse;
-import com.study.proudcat.domain.post.dto.response.PostWithComments;
+import com.study.proudcat.domain.post.dto.response.PostDetail;
 import com.study.proudcat.domain.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -37,9 +37,9 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostById(postId));
     }
 
-    @Operation(summary = "게시물 상세조회 댓글 포함", description = "게시물 상세 조회 메서드입니다. 댓글을 포함합니다.")
+    @Operation(summary = "게시물 상세조회(댓글, 좋아요)", description = "게시물 상세 조회 메서드입니다. 댓글과 좋아요 수를 포함합니다..")
     @GetMapping("/{postId}/comments")
-    public ResponseEntity<PostWithComments> getPostWithCommentsByPostId(@PathVariable(name = "postId") Long postId) {
+    public ResponseEntity<PostDetail> getPostWithCommentsByPostId(@PathVariable(name = "postId") Long postId) {
         return ResponseEntity.ok(postService.getPostWithCommentsById(postId));
     }
 
