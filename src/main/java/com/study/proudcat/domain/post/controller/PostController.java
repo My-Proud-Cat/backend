@@ -40,6 +40,7 @@ public class PostController {
     @Operation(summary = "게시물 상세조회(댓글, 좋아요)", description = "게시물 상세 조회 메서드입니다. 댓글과 좋아요 수를 포함합니다..")
     @GetMapping("/{postId}/comments")
     public ResponseEntity<PostDetail> getPostWithCommentsByPostId(@PathVariable(name = "postId") Long postId) {
+        postService.updatePostView(postId);
         return ResponseEntity.ok(postService.getPostWithCommentsById(postId));
     }
 

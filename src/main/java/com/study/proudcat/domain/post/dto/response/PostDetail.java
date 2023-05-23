@@ -18,6 +18,7 @@ public class PostDetail {
     private final String describe;
     private final Set<CommentDetail> commentDetails;
     private final int heartCnt;
+    private final int view;
 
     public static PostDetail from(Post post) {
         return PostDetail.builder()
@@ -29,6 +30,7 @@ public class PostDetail {
                         .map(CommentDetail::from)
                         .collect(Collectors.toCollection(LinkedHashSet::new)))
                 .heartCnt(post.getHearts().size())
+                .view(post.getView())
                 .build();
     }
 }

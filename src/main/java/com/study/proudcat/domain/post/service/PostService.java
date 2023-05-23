@@ -50,14 +50,20 @@ public class PostService {
     public PostDetail getPostWithCommentsById(Long postId) {
         log.info("PostService getPostWithCommentsById run..");
         Post post = getPostEntity(postId);
+
         return PostDetail.from(post);
+    }
+
+    @Transactional
+    public void updatePostView(Long postId) {
+        log.info("PostService updatePostView run..");
+        postRepository.updateView(postId);
     }
 
     @Transactional
     public void modifyPost(Long postId, ModifyPostRequest request) {
         log.info("PostService modifyPost run..");
         Post post = getPostEntity(postId);
-
         post.modify(request.getTitle(), request.getDescribe());
     }
 
@@ -65,7 +71,6 @@ public class PostService {
     public void deletePost(Long postId) {
         log.info("PostService deletePost run..");
         Post post = getPostEntity(postId);
-
         post.delete();
     }
 
