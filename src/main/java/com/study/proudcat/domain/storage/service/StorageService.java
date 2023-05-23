@@ -28,4 +28,13 @@ public class StorageService {
         log.info("imageData: {}", imageData);
         return "file uploaded successfully : " + file.getOriginalFilename();
     }
+
+    public byte[] downloadImage(String fileName) {
+        ImageData imageData = storageRepository.findByName(fileName)
+                .orElseThrow(RuntimeException::new);
+
+        log.info("download imageData : {}", imageData);
+
+        return ImageUtils.decompressImage(imageData.getImageData());
+    }
 }
