@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/proudcat")
+@RequestMapping("/picture")
 @RequiredArgsConstructor
 public class PostController {
 
@@ -30,6 +30,13 @@ public class PostController {
     public ResponseEntity<FindPostsResponse> getAllPosts() {
         return ResponseEntity.ok(postService.getAllPosts());
     }
+
+    @Operation(summary = "게시물 전체 조회(정렬조건)", description = "전체 게시물 조회 메서드입니다. 좋아요 수에 따라 정렬됩니다.")
+    @GetMapping("/list")
+    public ResponseEntity<FindPostsResponse> getAllPostsBySearchCondition() {
+        return ResponseEntity.ok(postService.getAllPostsBySearchCondition());
+    }
+
 
     @Operation(summary = "게시물 상세 조회", description = "게시물 상세 조회 메서드입니다.")
     @GetMapping("/{postId}")
@@ -57,4 +64,5 @@ public class PostController {
         postService.deletePost(postId);
         return ResponseEntity.noContent().build();
     }
+
 }

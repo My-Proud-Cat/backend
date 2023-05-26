@@ -39,6 +39,17 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
+    public FindPostsResponse getAllPostsBySearchCondition() {
+        log.info("PostService getAllPostsBySearchCondition run..");
+        List<FindPostResponse> posts = postRepository.findAllByHearts()
+                .stream()
+                .map(FindPostResponse::from)
+                .toList();
+        return new FindPostsResponse(posts);
+    }
+
+
+    @Transactional(readOnly = true)
     public FindPostResponse getPostById(Long postId) {
         log.info("PostService getPostById run..");
         Post post = getPostEntity(postId);
