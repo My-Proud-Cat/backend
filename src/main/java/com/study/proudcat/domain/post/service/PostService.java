@@ -1,14 +1,18 @@
 package com.study.proudcat.domain.post.service;
 
+import com.study.proudcat.domain.post.dto.request.FindPostRequest;
 import com.study.proudcat.domain.post.dto.request.ModifyPostRequest;
 import com.study.proudcat.domain.post.dto.request.WritePostRequest;
 import com.study.proudcat.domain.post.dto.response.FindPostResponse;
 import com.study.proudcat.domain.post.dto.response.FindPostsResponse;
 import com.study.proudcat.domain.post.dto.response.PostDetail;
+import com.study.proudcat.domain.post.dto.response.PostListResponse;
 import com.study.proudcat.domain.post.entity.Post;
 import com.study.proudcat.domain.post.repository.PostRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,15 +43,12 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public FindPostsResponse getAllPostsBySearchCondition() {
-        log.info("PostService getAllPostsBySearchCondition run..");
-        List<FindPostResponse> posts = postRepository.findAllByHearts()
-                .stream()
-                .map(FindPostResponse::from)
-                .toList();
-        return new FindPostsResponse(posts);
+    public Page<PostListResponse> getPostsSearchList(FindPostRequest request, int page, int size) {
+        log.info("PostService getPostsSearchList run..");
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Post> postPage = postRepository.findAllPostsPage(request, pageRequest);
+        return postPage.map(PostListResponse::from);
     }
-
 
     @Transactional(readOnly = true)
     public FindPostResponse getPostById(Long postId) {
