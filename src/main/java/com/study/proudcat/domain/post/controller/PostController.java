@@ -34,12 +34,8 @@ public class PostController {
 
     @Operation(summary = "게시물 전체 조회(페이징)", description = "검색 단어 입력시 제목에 해당 단어가 들어간 게시물만 조회합니다.")
     @GetMapping("/list/paging")
-    public ResponseEntity<?> getPostListPaging(
-            FindPostRequest request,
-            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-            @RequestParam(value = "size", defaultValue = "3", required = false) int size
-    ) {
-        return ResponseEntity.ok(postService.getPostsSearchList(request, page, size));
+    public ResponseEntity<?> getPostListPaging(FindPostRequest request) {
+        return ResponseEntity.ok(postService.getPostsSearchList(request));
     }
 
     @Operation(summary = "게시물 상세 조회", description = "게시물 상세 조회 메서드입니다.")

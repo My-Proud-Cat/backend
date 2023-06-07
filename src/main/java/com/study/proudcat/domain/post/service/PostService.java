@@ -12,7 +12,6 @@ import com.study.proudcat.domain.post.repository.PostRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,10 +42,9 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostListResponse> getPostsSearchList(FindPostRequest request, int page, int size) {
+    public Page<PostListResponse> getPostsSearchList(FindPostRequest request) {
         log.info("PostService getPostsSearchList run..");
-        PageRequest pageRequest = PageRequest.of(page, size);
-        Page<Post> postPage = postRepository.findAllPostsPage(request, pageRequest);
+        Page<Post> postPage = postRepository.findAllPostsPage(request);
         return postPage.map(PostListResponse::from);
     }
 
