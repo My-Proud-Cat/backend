@@ -32,7 +32,8 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public Page<Post> findAllPostsPage(FindPostRequest request, Pageable pageable) {
+    public Page<Post> findAllPostsPage(FindPostRequest request) {
+        Pageable pageable = request.getPageable();
 
         List<Post> content = queryFactory
                 .selectFrom(post)
@@ -51,7 +52,6 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .where(titleEq(request.getTitle()));
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
-
     }
 
     private BooleanExpression titleEq(String title) {
