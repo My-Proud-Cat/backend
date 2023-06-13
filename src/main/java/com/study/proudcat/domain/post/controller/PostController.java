@@ -4,7 +4,6 @@ import com.study.proudcat.domain.post.dto.request.FindPostRequest;
 import com.study.proudcat.domain.post.dto.request.ModifyPostRequest;
 import com.study.proudcat.domain.post.dto.request.WritePostRequest;
 import com.study.proudcat.domain.post.dto.response.FindPostResponse;
-import com.study.proudcat.domain.post.dto.response.FindPostsResponse;
 import com.study.proudcat.domain.post.dto.response.PostDetail;
 import com.study.proudcat.domain.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +27,7 @@ public class PostController {
 
     @Operation(summary = "게시물 리스트 조회", description = "전체 게시물 조회 메서드입니다.")
     @GetMapping
-    public ResponseEntity<FindPostsResponse> getAllPosts() {
+    public ResponseEntity<?> getAllPosts() {
         return ResponseEntity.ok(postService.getAllPosts());
     }
 
