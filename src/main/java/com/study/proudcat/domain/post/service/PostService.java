@@ -4,7 +4,6 @@ import com.study.proudcat.domain.post.dto.request.FindPostRequest;
 import com.study.proudcat.domain.post.dto.request.ModifyPostRequest;
 import com.study.proudcat.domain.post.dto.request.WritePostRequest;
 import com.study.proudcat.domain.post.dto.response.FindPostResponse;
-import com.study.proudcat.domain.post.dto.response.FindPostsResponse;
 import com.study.proudcat.domain.post.dto.response.PostDetail;
 import com.study.proudcat.domain.post.dto.response.PostListResponse;
 import com.study.proudcat.domain.post.entity.Post;
@@ -31,14 +30,12 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public FindPostsResponse getAllPosts() {
+    public List<FindPostResponse> getAllPosts() {
         log.info("PostService getAllPosts run..");
-        List<FindPostResponse> posts = postRepository.findAll()
+        return postRepository.findAll()
                 .stream()
                 .map(FindPostResponse::from)
                 .toList();
-
-        return new FindPostsResponse(posts);
     }
 
     @Transactional(readOnly = true)
