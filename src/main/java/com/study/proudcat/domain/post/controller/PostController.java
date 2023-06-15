@@ -8,6 +8,9 @@ import com.study.proudcat.domain.post.dto.response.PostDetail;
 import com.study.proudcat.domain.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,10 +34,15 @@ public class PostController {
         return ResponseEntity.ok(postService.getAllPosts());
     }
 
-    @Operation(summary = "게시물 전체 조회(페이징)", description = "검색 단어 입력시 제목에 해당 단어가 들어간 게시물만 조회합니다.")
+    @Operation(summary = "게시물 전체 조회(페이징)", description = "제목으로 검색, 추천순/최신순 정렬 가능")
     @GetMapping("/list/paging")
-    public ResponseEntity<?> getPostListPaging(FindPostRequest request) {
-        return ResponseEntity.ok(postService.getPostsSearchList(request));
+    public ResponseEntity<?> getPostListPaging(
+            FindPostRequest request,
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "size", defaultValue = "3", required = false) int size,
+            @RequestParam(value = "sort", defaultValue = "createdAt", required = false) String sort) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+        return ResponseEntity.ok(postService.getPostsSearchList(request, pageable));
     }
 
     @Operation(summary = "게시물 상세 조회", description = "게시물 상세 조회 메서드입니다.")

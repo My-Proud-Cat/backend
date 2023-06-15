@@ -3,12 +3,9 @@ package com.study.proudcat.domain.post.repository;
 import com.study.proudcat.domain.post.dto.request.FindPostRequest;
 import com.study.proudcat.domain.post.entity.Post;
 import org.springframework.data.domain.Page;
-
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 public interface PostRepositoryCustom {
 
-    List<Post> findAllByHearts();
-
-    Page<Post> findAllPostsPage(FindPostRequest request);
+    Page<Post> findAllPostsPage(FindPostRequest request, Pageable pageable);
 }
