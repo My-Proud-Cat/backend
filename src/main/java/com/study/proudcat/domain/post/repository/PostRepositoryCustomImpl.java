@@ -1,5 +1,7 @@
 package com.study.proudcat.domain.post.repository;
 
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -7,13 +9,16 @@ import com.study.proudcat.domain.post.dto.request.FindPostRequest;
 import com.study.proudcat.domain.post.entity.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.study.proudcat.domain.post.entity.QHeart.heart;
 import static com.study.proudcat.domain.post.entity.QPost.post;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
@@ -23,17 +28,9 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         this.queryFactory = queryFactory;
     }
 
-    public List<Post> findAllByHearts() {
-        return queryFactory
-                .selectFrom(post)
-                .leftJoin(post.hearts, heart)
-                .orderBy(post.hearts.size().desc())
-                .fetch();
-    }
-
     @Override
-    public Page<Post> findAllPostsPage(FindPostRequest request) {
-        Pageable pageable = request.getPageable();
+    public Page<Post> findAllPostsPage(FindPostRequest request, Pageable pageable) {
+        List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
 
         List<Post> content = queryFactory
                 .selectFrom(post)
@@ -41,7 +38,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .where(
                         titleEq(request.getTitle())
                 )
-                .orderBy(post.createdAt.desc())
+                .orderBy(ORDERS.stream().toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -58,5 +55,24 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         return StringUtils.hasText(title) ? post.title.contains(title) : null;
     }
 
+    private List<OrderSpecifier> getAllOrderSpecifiers(Pageable pageable) {
+        List<OrderSpecifier> ORDERS = new ArrayList<>();
 
+        if (!isEmpty(pageable.getSort())) {
+            for (Sort.Order order : pageable.getSort()) {
+                Order direction = Order.DESC;
+
+                switch (order.getProperty()) {
+                    case "createdAt":
+                        ORDERS.add(new OrderSpecifier(direction, post.createdAt));
+                        break;
+                    case "hearts":
+                        ORDERS.add(new OrderSpecifier(direction, post.hearts.size()));
+                    default:
+                        break;
+                }
+            }
+        }
+        return ORDERS;
+    }
 }
