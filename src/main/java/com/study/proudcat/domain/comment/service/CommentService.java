@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ObjectUtils;
 
 @Slf4j
 @Service
@@ -24,19 +23,10 @@ public class CommentService {
         log.info("Comment service writeComment run..");
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("post not found"));
-        Comment parentComment = null;
-        if (!ObjectUtils.isEmpty(request.getParentId())) {
-            parentComment = commentRepository.findById(request.getParentId())
-                    .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
-            log.info("parentComment : {}", parentComment);
-        }
 
         Comment comment = Comment.of(request, post);
         log.info("comment : {}", comment);
 
-        if (parentComment != null) {
-            parentComment.addChildComment(comment);
-        }
         commentRepository.save(comment);
     }
 
