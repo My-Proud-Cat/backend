@@ -6,6 +6,8 @@ import com.study.proudcat.domain.post.repository.HeartRepository;
 import com.study.proudcat.domain.post.repository.PostRepository;
 import com.study.proudcat.domain.user.entity.User;
 import com.study.proudcat.domain.user.repository.UserRepository;
+import com.study.proudcat.infra.exception.ErrorCode;
+import com.study.proudcat.infra.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,11 +41,11 @@ public class HeartService {
 
     private Post getPostById(Long postId) {
         return postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+                .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
     }
 
     private User getUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
     }
 }
