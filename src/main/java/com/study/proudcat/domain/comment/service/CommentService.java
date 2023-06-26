@@ -5,6 +5,8 @@ import com.study.proudcat.domain.comment.entity.Comment;
 import com.study.proudcat.domain.comment.repository.CommentRepository;
 import com.study.proudcat.domain.post.entity.Post;
 import com.study.proudcat.domain.post.repository.PostRepository;
+import com.study.proudcat.infra.exception.ErrorCode;
+import com.study.proudcat.infra.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,7 +24,7 @@ public class CommentService {
     public void writeComment(Long postId, CommentRequest request) {
         log.info("Comment service writeComment run..");
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("post not found"));
+                .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
 
         Comment comment = Comment.of(request, post);
         log.info("comment : {}", comment);
@@ -40,12 +42,12 @@ public class CommentService {
     private Comment errorCheckComment(Long postId, Long commentId) {
         log.info("Comment service errorCheckComment run..");
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("post not found"));
+                .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
+                .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
 
         if (!comment.getPost().getId().equals(post.getId())) {
-            throw new IllegalArgumentException("no target");
+            throw new RestApiException(ErrorCode.NO_TARGET);
         }
         return comment;
     }

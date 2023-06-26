@@ -8,6 +8,8 @@ import com.study.proudcat.domain.post.dto.response.PostDetail;
 import com.study.proudcat.domain.post.dto.response.PostListResponse;
 import com.study.proudcat.domain.post.entity.Post;
 import com.study.proudcat.domain.post.repository.PostRepository;
+import com.study.proudcat.infra.exception.ErrorCode;
+import com.study.proudcat.infra.exception.RestApiException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -84,6 +86,6 @@ public class PostService {
 
     private Post getPostEntity(Long postId) {
         return postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+                .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
     }
 }
