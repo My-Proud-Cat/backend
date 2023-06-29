@@ -18,14 +18,14 @@ public class StorageService {
     private final StorageRepository storageRepository;
 
     public String uploadImage(MultipartFile file) throws IOException {
-        log.info("upload file : {}", file);
+        log.info("upload file : {}", file.getOriginalFilename());
         ImageData imageData = storageRepository.save(
                 ImageData.builder()
                         .name(file.getOriginalFilename())
                         .type(file.getContentType())
                         .imageData(ImageUtils.compressImage(file.getBytes()))
                         .build());
-        log.info("imageData: {}", imageData);
+        log.info("uploaded imageData: {}", imageData.getName());
         return "file uploaded successfully : " + file.getOriginalFilename();
     }
 
@@ -33,7 +33,7 @@ public class StorageService {
         ImageData imageData = storageRepository.findByName(fileName)
                 .orElseThrow(RuntimeException::new);
 
-        log.info("download imageData : {}", imageData);
+        log.info("download imageData : {}", imageData.getName());
 
         return ImageUtils.decompressImage(imageData.getImageData());
     }

@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/proudcat/image")
+@RequestMapping("/proudcat/image-db-storage")
 @RequiredArgsConstructor
 public class StorageController {
 
