@@ -7,7 +7,6 @@ import com.study.proudcat.infra.exception.RestApiException;
 import com.study.proudcat.infra.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,8 +20,6 @@ import java.nio.file.Files;
 public class FileDataService {
 
     private final FileDataRepository fileDataRepository;
-    private final String FOLDER_PATH = "C:\\study\\files\\";
-
 
     public String uploadImage(MultipartFile file) throws IOException {
         log.info("upload file : {}", file.getOriginalFilename());
