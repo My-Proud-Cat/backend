@@ -1,6 +1,6 @@
-package com.study.proudcat.domain.storage.controller;
+package com.study.proudcat.domain.file.controller;
 
-import com.study.proudcat.domain.storage.service.StorageService;
+import com.study.proudcat.domain.file.service.FileDataService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,23 +12,23 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/proudcat/api/image-db-storage")
 @RequiredArgsConstructor
-public class StorageController {
+@RequestMapping("/proudcat/api/image-file-path")
+public class FileDataController {
 
-    private final StorageService storageService;
+    private final FileDataService fileDataService;
 
-    @Operation(summary = "이미지 업로드(db에 저장)", description = "업로드한 이미지 파일을 db에 저장합니다.")
+    @Operation(summary = "이미지 업로드(filePath를 db에 저장)", description = "filePath를 db에 저장하는 방식입니다.")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> uploadImage(@RequestParam("image") MultipartFile file) throws IOException {
-        String uploadImage = storageService.uploadImage(file);
+        String uploadImage = fileDataService.uploadImage(file);
         return ResponseEntity.ok(uploadImage);
     }
 
-    @Operation(summary = "이미지 다운로드(db에서 다운)", description = "이미지 fileName을 파라미터로 받아 db에 저장된 이미지를 다운로드합니다.")
-    @GetMapping("{fileName}")
-    public ResponseEntity<?> downloadImage(@PathVariable(name = "fileName") String fileName) {
-        byte[] downloadImage = storageService.downloadImage(fileName);
+    @Operation(summary = "이미지 다운로드(filePath)", description = "db에 저장된 filePath에서 파일을 다운로드하는 방식입니다.")
+    @GetMapping("/{fileId}")
+    public ResponseEntity<?> downloadImage(@PathVariable("fileId") Long fileId) throws IOException{
+        byte[] downloadImage = fileDataService.downloadImage(fileId);
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.valueOf("image/png"))
                 .body(downloadImage);
