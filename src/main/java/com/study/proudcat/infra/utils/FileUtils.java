@@ -1,6 +1,8 @@
 package com.study.proudcat.infra.utils;
 
 import com.study.proudcat.domain.file.entity.FileData;
+import com.study.proudcat.infra.exception.ErrorCode;
+import com.study.proudcat.infra.exception.RestApiException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,6 +44,8 @@ public class FileUtils {
                 originalFileExtension = ".png";
             } else if (contentType.contains("image/gif")) {
                 originalFileExtension = ".gif";
+            } else {
+                throw new RestApiException(ErrorCode.NOT_IMAGE_TYPE);
             }
         }
 
