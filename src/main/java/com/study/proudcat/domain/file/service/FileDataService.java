@@ -4,8 +4,10 @@ import com.study.proudcat.domain.file.entity.FileData;
 import com.study.proudcat.domain.file.repository.FileDataRepository;
 import com.study.proudcat.infra.exception.ErrorCode;
 import com.study.proudcat.infra.exception.RestApiException;
+import com.study.proudcat.infra.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,7 +18,7 @@ import java.nio.file.Files;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class FileService {
+public class FileDataService {
 
     private final FileDataRepository fileDataRepository;
     private final String FOLDER_PATH = "C:\\study\\files\\";
@@ -24,28 +26,25 @@ public class FileService {
 
     public String uploadImage(MultipartFile file) throws IOException {
         log.info("upload file : {}", file.getOriginalFilename());
-        String filePath = FOLDER_PATH + file.getOriginalFilename();
-        FileData fileData = fileDataRepository.save(
-                FileData.builder()
-                        .filename(file.getOriginalFilename())
-                        .type(file.getContentType())
-                        .filePath(filePath)
-                        .build()
-        );
-        //filePath에 파일 저장
-        file.transferTo(new File(filePath));
 
-        return "file uploaded successfully! filePath : " + filePath;
+        FileData fileData = FileUtils.parseFileInfo(file);
+
+        if (fileData == null) {
+            throw new RestApiException(ErrorCode.EMPTY_FILE);
+        }
+        fileDataRepository.save(fileData);
+
+        return "file uploaded successfully! filePath : " + fileData.getFilePath();
     }
 
-    public byte[] downloadImage(String fileName) throws IOException {
-        FileData fileData = fileDataRepository.findByFilename(fileName)
+    public byte[] downloadImage(Long fileId) throws IOException {
+        FileData fileData = fileDataRepository.findById(fileId)
                 .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
 
         String filePath = fileData.getFilePath();
 
-        log.info("download fileName : {}", fileData.getFilename());
-        log.info("download filePath: {}", fileData.getFilename());
+        log.info("download fileName : {}", fileData.getOrigFileName());
+        log.info("download filePath: {}", fileData.getFilePath());
 
         return Files.readAllBytes(new File(filePath).toPath());
     }

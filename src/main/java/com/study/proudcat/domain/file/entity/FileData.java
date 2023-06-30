@@ -17,14 +17,19 @@ public class FileData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String filename;
+    private String origFileName;
+    private String storedFileName;
     private String type;
     private String filePath;
+    private Long fileSize;
 
     @Builder
-    public FileData(String filename, String type, String filePath) {
-        this.filename = filename;
+
+    public FileData(String origFileName, String storedFileName, String type, String filePath, Long fileSize) {
+        this.origFileName = origFileName;
+        this.storedFileName = storedFileName;
         this.type = type;
         this.filePath = filePath;
+        this.fileSize = fileSize;
     }
 }
