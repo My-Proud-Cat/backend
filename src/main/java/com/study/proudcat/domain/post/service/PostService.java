@@ -1,5 +1,7 @@
 package com.study.proudcat.domain.post.service;
 
+import com.study.proudcat.domain.file.entity.FileData;
+import com.study.proudcat.domain.file.repository.FileDataRepository;
 import com.study.proudcat.domain.post.dto.request.FindPostRequest;
 import com.study.proudcat.domain.post.dto.request.ModifyPostRequest;
 import com.study.proudcat.domain.post.dto.request.WritePostRequest;
@@ -10,13 +12,16 @@ import com.study.proudcat.domain.post.entity.Post;
 import com.study.proudcat.domain.post.repository.PostRepository;
 import com.study.proudcat.infra.exception.ErrorCode;
 import com.study.proudcat.infra.exception.RestApiException;
+import com.study.proudcat.infra.utils.FileUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -25,11 +30,21 @@ import java.util.List;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final FileDataRepository fileDataRepository;
 
     @Transactional
-    public void writePost(WritePostRequest request) {
+    public void writePost(WritePostRequest request, MultipartFile image) throws IOException {
         log.info("PostService writePost run..");
-        postRepository.save(request.toEntity());
+        log.info("upload file : {}", image.getOriginalFilename());
+
+        FileData fileData = FileUtils.parseFileInfo(image);
+        if (fileData == null) {
+            throw new RestApiException(ErrorCode.EMPTY_FILE);
+        }
+        fileDataRepository.save(fileData);
+
+        Post post = request.toEntity(fileData.getStoredFileName());
+        postRepository.save(post);
     }
 
     @Transactional(readOnly = true)

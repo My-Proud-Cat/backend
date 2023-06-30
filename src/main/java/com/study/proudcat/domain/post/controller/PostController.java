@@ -7,12 +7,18 @@ import com.study.proudcat.domain.post.dto.response.FindPostResponse;
 import com.study.proudcat.domain.post.dto.response.PostDetail;
 import com.study.proudcat.domain.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/picture")
@@ -22,9 +28,11 @@ public class PostController {
     private final PostService postService;
 
     @Operation(summary = "게시물 작성", description = "게시물 작성 메서드입니다.")
-    @PostMapping
-    public ResponseEntity<Void> writePost(@RequestBody WritePostRequest request) {
-        postService.writePost(request);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> writePost(
+            @RequestPart(value = "request") @Parameter(schema =@Schema(type = "string", format = "binary")) WritePostRequest request,
+            @RequestPart(value = "image") MultipartFile image) throws IOException {
+        postService.writePost(request, image);
         return ResponseEntity.noContent().build();
     }
 

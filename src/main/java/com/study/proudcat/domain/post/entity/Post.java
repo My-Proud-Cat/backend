@@ -39,11 +39,13 @@ public class Post extends BaseTimeEntity {
     @ToString.Exclude
     private Set<Heart> hearts;
 
+    private String fileName;
 
     @Builder
-    public Post(String title, String describe, Set<Comment> comments, Set<Heart> hearts) {
+    public Post(String title, String describe, String fileName, Set<Comment> comments, Set<Heart> hearts) {
         this.title = title;
         this.describe = describe;
+        this.fileName = fileName;
         this.view = 0;
         this.status = Status.REGISTERED;
         this.comments = comments;
