@@ -13,6 +13,8 @@ import java.util.Date;
 @Component
 public class FileUtils {
 
+    private static final String FOLDER_PATH = "C:\\proudcat\\";
+
     public static FileData parseFileInfo(MultipartFile multipartFile) throws IOException {
         if (multipartFile.isEmpty())
             return null;
@@ -20,9 +22,7 @@ public class FileUtils {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
         String current_date = simpleDateFormat.format(new Date());
 
-        String absolutePath = new File("").getAbsolutePath() + File.separator;
-
-        String path = "photo" + File.separator + current_date;
+        String path = FOLDER_PATH + "photo" + File.separator + current_date;
         File file = new File(path);
 
         //해당 경로가 존재하지 않으면 디렉토리 생성
@@ -50,12 +50,13 @@ public class FileUtils {
         FileData fileData = FileData.builder()
                 .origFileName(multipartFile.getOriginalFilename())
                 .storedFileName(path + File.separator + newFileName)
+                .type(originalFileExtension)
                 .filePath(path + File.separator + newFileName)
                 .fileSize(multipartFile.getSize())
                 .build();
 
         //filePath에 파일 저장
-        file = new File(absolutePath + path + File.separator + newFileName);
+        file = new File(path + File.separator + newFileName);
         multipartFile.transferTo(file);
 
         return fileData;
