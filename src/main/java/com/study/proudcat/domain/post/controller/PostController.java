@@ -7,12 +7,18 @@ import com.study.proudcat.domain.post.dto.response.FindPostResponse;
 import com.study.proudcat.domain.post.dto.response.PostDetail;
 import com.study.proudcat.domain.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/picture")
@@ -21,10 +27,12 @@ public class PostController {
 
     private final PostService postService;
 
-    @Operation(summary = "게시물 작성", description = "게시물 작성 메서드입니다.")
-    @PostMapping
-    public ResponseEntity<Void> writePost(@RequestBody WritePostRequest request) {
-        postService.writePost(request);
+    @Operation(summary = "게시물 작성(이미지 포함)", description = "게시물 작성 메서드입니다. 이미지 첨부를 포함합니다.")
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> writePost(
+            @RequestPart(value = "request") @Parameter(schema =@Schema(type = "string", format = "binary")) WritePostRequest request,
+            @RequestPart(value = "image") MultipartFile image) throws IOException {
+        postService.writePost(request, image);
         return ResponseEntity.noContent().build();
     }
 
@@ -35,9 +43,9 @@ public class PostController {
     }
 
     @Operation(summary = "게시물 전체 조회(페이징)", description = "제목으로 검색, 추천순/최신순 정렬 가능")
-    @GetMapping("/list/paging")
+    @GetMapping("/list/paging/")
     public ResponseEntity<?> getPostListPaging(
-            FindPostRequest request,
+            @RequestBody FindPostRequest request,
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "size", defaultValue = "3", required = false) int size,
             @RequestParam(value = "sort", defaultValue = "createdAt", required = false) String sort) {
@@ -47,7 +55,7 @@ public class PostController {
 
     @Operation(summary = "게시물 상세 조회", description = "게시물 상세 조회 메서드입니다.")
     @GetMapping("/{postId}")
-    public ResponseEntity<FindPostResponse> getPostById(@PathVariable("postId") Long postId) {
+    public ResponseEntity<FindPostResponse> getPostById(@PathVariable("postId") Long postId) throws IOException {
         return ResponseEntity.ok(postService.getPostById(postId));
     }
 
