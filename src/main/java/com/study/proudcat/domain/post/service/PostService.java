@@ -21,7 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -43,17 +46,26 @@ public class PostService {
         }
         fileDataRepository.save(fileData);
 
-        Post post = request.toEntity(fileData.getStoredFileName());
+        Post post = request.toEntity();
+        post.setFilePath(fileData.getFilePath());
+
         postRepository.save(post);
     }
 
     @Transactional(readOnly = true)
-    public List<FindPostResponse> getAllPosts() {
+    public List<FindPostResponse> getAllPosts(){
         log.info("PostService getAllPosts run..");
-        return postRepository.findAll()
-                .stream()
-                .map(FindPostResponse::from)
-                .toList();
+        List<Post> posts = postRepository.findAll();
+        List<FindPostResponse> responses = new ArrayList<>();
+        posts.forEach(post -> {
+            try{
+                byte[] byteFile = getByteFile(post.getFilePath());
+                responses.add(FindPostResponse.from(post, byteFile));
+            } catch (IOException e) {
+                log.error("전체 게시판 목록 조회 에러");
+            }
+        });
+        return responses;
     }
 
     @Transactional(readOnly = true)
@@ -64,11 +76,11 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public FindPostResponse getPostById(Long postId) {
+    public FindPostResponse getPostById(Long postId) throws IOException {
         log.info("PostService getPostById run..");
         Post post = getPostEntity(postId);
 
-        return FindPostResponse.from(post);
+        return FindPostResponse.from(post, getByteFile(post.getFilePath()));
     }
 
     @Transactional(readOnly = true)
@@ -102,5 +114,15 @@ public class PostService {
     private Post getPostEntity(Long postId) {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
+    }
+
+    private byte[] getByteFile(String filePath) throws IOException {
+        byte[] byteFile = null;
+        try {
+            byteFile = Files.readAllBytes(new File(filePath).toPath());
+        } catch (IOException e) {
+            System.out.println("File to byte[] 변환 에러");
+        }
+        return byteFile;
     }
 }

@@ -49,7 +49,6 @@ public class FileUtils {
         String newFileName = System.nanoTime() + originalFileExtension;
         FileData fileData = FileData.builder()
                 .origFileName(multipartFile.getOriginalFilename())
-                .storedFileName(path + File.separator + newFileName)
                 .type(originalFileExtension)
                 .filePath(path + File.separator + newFileName)
                 .fileSize(multipartFile.getSize())

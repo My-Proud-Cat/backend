@@ -16,11 +16,10 @@ public class WritePostRequest {
         this.describe = describe;
     }
 
-    public Post toEntity(String fileName) {
+    public Post toEntity() {
         return Post.builder()
                 .title(title)
                 .describe(describe)
-                .fileName(fileName)
                 .build();
     }
 }
