@@ -49,7 +49,7 @@ public class PostController {
     }
 
     @Operation(summary = "게시물 전체 조회(페이징)", description = "제목으로 검색, 추천순/최신순 정렬 가능")
-    @GetMapping("/list/paging/")
+    @GetMapping("/list/paging")
     public ResponseEntity<?> getPostListPaging(
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "sort", defaultValue = "createdAt", required = false) String sort) {
