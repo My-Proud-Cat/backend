@@ -27,6 +27,13 @@ public class PostController {
 
     private final PostService postService;
 
+    @Operation(summary = "게시물 작성 테스트용")
+    @PostMapping("/test")
+    public ResponseEntity<Void> writePost(@RequestBody WritePostRequest request) {
+        postService.writePostTest(request);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "게시물 작성(이미지 포함)", description = "게시물 작성 메서드입니다. 이미지 첨부를 포함합니다.")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> writePost(

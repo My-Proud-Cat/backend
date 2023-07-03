@@ -35,6 +35,13 @@ public class PostService {
     private final PostRepository postRepository;
     private final FileDataRepository fileDataRepository;
 
+
+    @Transactional
+    public void writePostTest(WritePostRequest request) {
+        postRepository.save(request.toEntity());
+
+    }
+
     @Transactional
     public void writePost(WritePostRequest request, MultipartFile image) throws IOException {
         log.info("PostService writePost run..");
@@ -53,12 +60,12 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<FindPostResponse> getAllPosts(){
+    public List<FindPostResponse> getAllPosts() {
         log.info("PostService getAllPosts run..");
         List<Post> posts = postRepository.findAll();
         List<FindPostResponse> responses = new ArrayList<>();
         posts.forEach(post -> {
-            try{
+            try {
                 byte[] byteFile = getByteFile(post.getFilePath());
                 responses.add(FindPostResponse.from(post, byteFile));
             } catch (IOException e) {
