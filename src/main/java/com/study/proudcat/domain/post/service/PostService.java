@@ -77,6 +77,7 @@ public class PostService {
     public Page<PostListResponse> getPostsSearchList(String title, Pageable pageable) {
         log.info("PostService getPostsSearchList run..");
         Page<Post> postPage = postRepository.findAllPostsPage(title, pageable);
+        log.info(postPage.getContent().toString());
         return postPage.map(PostListResponse::from);
     }
 
@@ -112,6 +113,13 @@ public class PostService {
     @Transactional
     public void deletePost(Long postId) {
         log.info("PostService deletePost run..");
+        Post post = getPostEntity(postId);
+        postRepository.delete(post);
+    }
+
+    @Transactional  //추후 도전
+    public void deletePostPatch(Long postId) {
+        log.info("PostService deletePostPatch run..");
         Post post = getPostEntity(postId);
         post.delete();
     }

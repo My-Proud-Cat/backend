@@ -52,11 +52,9 @@ public class PostController {
     @GetMapping("/list/paging/")
     public ResponseEntity<?> getPostListPaging(
             @RequestParam(value = "title", required = false) String title,
-            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-            @RequestParam(value = "size", defaultValue = "3", required = false) int size,
             @RequestParam(value = "sort", defaultValue = "createdAt", required = false) String sort) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
-        return ResponseEntity.ok(postService.getPostsSearchList(title, pageable));
+        Pageable pageable = PageRequest.of(0, 4, Sort.by(sort));
+        return ResponseEntity.ok(postService.getPostsSearchList(title, pageable).getContent());
     }
 
     @Operation(summary = "게시물 상세 조회", description = "게시물 상세 조회 메서드입니다.")
@@ -80,9 +78,16 @@ public class PostController {
     }
 
     @Operation(summary = "게시물 삭제", description = "게시물 삭제 메소드입니다.")
-    @PatchMapping("/{postId}")
+    @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable("postId") Long postId) {
         postService.deletePost(postId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "게시물 삭제(patchmapping. 추후 도전)", description = "게시물 삭제 메소드입니다.")
+    @PatchMapping("/{postId}/patch")
+    public ResponseEntity<Void> deletePostPatch(@PathVariable("postId") Long postId) {
+        postService.deletePostPatch(postId);
         return ResponseEntity.noContent().build();
     }
 }
