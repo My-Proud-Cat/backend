@@ -15,7 +15,7 @@ public class CommentController {
     private final CommentService commentService;
 
     @Operation(summary = "댓글 작성", description = "게시물에 댓글을 작성하는 메서드입니다.")
-    @PostMapping("{postId}")
+    @PostMapping("{postId}/comments")
     public ResponseEntity<Void> writeComment(
             @PathVariable(name = "postId") Long postId,
             @RequestBody CommentRequest request
