@@ -2,7 +2,6 @@ package com.study.proudcat.domain.post.service;
 
 import com.study.proudcat.domain.file.entity.FileData;
 import com.study.proudcat.domain.file.repository.FileDataRepository;
-import com.study.proudcat.domain.post.dto.request.FindPostRequest;
 import com.study.proudcat.domain.post.dto.request.ModifyPostRequest;
 import com.study.proudcat.domain.post.dto.request.WritePostRequest;
 import com.study.proudcat.domain.post.dto.response.FindPostResponse;
@@ -39,7 +38,6 @@ public class PostService {
     @Transactional
     public void writePostTest(WritePostRequest request) {
         postRepository.save(request.toEntity());
-
     }
 
     @Transactional
@@ -76,9 +74,9 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostListResponse> getPostsSearchList(FindPostRequest request, Pageable pageable) {
+    public Page<PostListResponse> getPostsSearchList(String title, Pageable pageable) {
         log.info("PostService getPostsSearchList run..");
-        Page<Post> postPage = postRepository.findAllPostsPage(request, pageable);
+        Page<Post> postPage = postRepository.findAllPostsPage(title, pageable);
         return postPage.map(PostListResponse::from);
     }
 

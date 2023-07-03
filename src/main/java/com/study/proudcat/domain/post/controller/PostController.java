@@ -1,6 +1,5 @@
 package com.study.proudcat.domain.post.controller;
 
-import com.study.proudcat.domain.post.dto.request.FindPostRequest;
 import com.study.proudcat.domain.post.dto.request.ModifyPostRequest;
 import com.study.proudcat.domain.post.dto.request.WritePostRequest;
 import com.study.proudcat.domain.post.dto.response.FindPostResponse;
@@ -52,12 +51,12 @@ public class PostController {
     @Operation(summary = "게시물 전체 조회(페이징)", description = "제목으로 검색, 추천순/최신순 정렬 가능")
     @GetMapping("/list/paging/")
     public ResponseEntity<?> getPostListPaging(
-            @RequestBody FindPostRequest request,
+            @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "size", defaultValue = "3", required = false) int size,
             @RequestParam(value = "sort", defaultValue = "createdAt", required = false) String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
-        return ResponseEntity.ok(postService.getPostsSearchList(request, pageable));
+        return ResponseEntity.ok(postService.getPostsSearchList(title, pageable));
     }
 
     @Operation(summary = "게시물 상세 조회", description = "게시물 상세 조회 메서드입니다.")
