@@ -9,9 +9,12 @@ import com.study.proudcat.domain.post.dto.response.PostDetail;
 import com.study.proudcat.domain.post.dto.response.PostListResponse;
 import com.study.proudcat.domain.post.entity.Post;
 import com.study.proudcat.domain.post.repository.PostRepository;
+import com.study.proudcat.domain.storage.entity.ImageData;
+import com.study.proudcat.domain.storage.repository.StorageRepository;
 import com.study.proudcat.infra.exception.ErrorCode;
 import com.study.proudcat.infra.exception.RestApiException;
 import com.study.proudcat.infra.utils.FileUtils;
+import com.study.proudcat.infra.utils.ImageUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -33,6 +36,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final FileDataRepository fileDataRepository;
+    private final StorageRepository storageRepository;
 
 
     @Transactional
@@ -57,6 +61,22 @@ public class PostService {
         postRepository.save(post);
     }
 
+    @Transactional
+    public void writePostStoreImageDB(WritePostRequest request, MultipartFile image) throws IOException {
+        ImageData imageData = storageRepository.save(
+                ImageData.builder()
+                        .name(image.getOriginalFilename())
+                        .type(image.getContentType())
+                        .imageData(ImageUtils.compressImage(image.getBytes()))
+                        .build());
+
+        Post post = request.toEntity();
+        post.setFilePath(image.getOriginalFilename());
+
+        postRepository.save(post);
+    }
+
+
     @Transactional(readOnly = true)
     public List<FindPostResponse> getAllPosts() {
         log.info("PostService getAllPosts run..");
@@ -80,6 +100,22 @@ public class PostService {
         log.info(postPage.getContent().toString());
         return postPage.map(PostListResponse::from);
     }
+
+    @Transactional(readOnly = true)
+    public List<FindPostResponse> getPostsSearchListImage(String title, Pageable pageable) {
+        Page<Post> postPage = postRepository.findAllPostsPage(title, pageable);
+        List<FindPostResponse> responses = new ArrayList<>();
+
+        postPage.forEach(post ->{
+            String filename = post.getFilePath();
+            ImageData image = storageRepository.findByName(filename)
+                    .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
+            responses.add(FindPostResponse.from(post, ImageUtils.decompressImage(image.getImageData())));
+        });
+
+        return responses;
+    }
+
 
     @Transactional(readOnly = true)
     public FindPostResponse getPostById(Long postId) throws IOException {
