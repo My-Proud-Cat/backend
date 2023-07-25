@@ -3,7 +3,7 @@ package com.study.proudcat.domain.post.controller;
 import com.study.proudcat.domain.post.dto.request.ModifyPostRequest;
 import com.study.proudcat.domain.post.dto.request.WritePostRequest;
 import com.study.proudcat.domain.post.dto.response.FindPostResponse;
-import com.study.proudcat.domain.post.dto.response.PostDetail;
+import com.study.proudcat.domain.post.dto.response.PostDetails;
 import com.study.proudcat.domain.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -83,7 +83,7 @@ public class PostController {
 
     @Operation(summary = "게시물 상세조회(댓글, 좋아요)", description = "게시물 상세 조회 메서드입니다. 댓글과 좋아요 수를 포함합니다..")
     @GetMapping("/{postId}/comments")
-    public ResponseEntity<PostDetail> getPostWithCommentsByPostId(@PathVariable(name = "postId") Long postId) {
+    public ResponseEntity<PostDetails> getPostWithCommentsByPostId(@PathVariable(name = "postId") Long postId) throws IOException {
         postService.updatePostView(postId);
         return ResponseEntity.ok(postService.getPostWithCommentsById(postId));
     }

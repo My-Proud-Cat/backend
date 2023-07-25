@@ -5,7 +5,7 @@ import com.study.proudcat.domain.file.repository.FileDataRepository;
 import com.study.proudcat.domain.post.dto.request.ModifyPostRequest;
 import com.study.proudcat.domain.post.dto.request.WritePostRequest;
 import com.study.proudcat.domain.post.dto.response.FindPostResponse;
-import com.study.proudcat.domain.post.dto.response.PostDetail;
+import com.study.proudcat.domain.post.dto.response.PostDetails;
 import com.study.proudcat.domain.post.dto.response.PostListResponse;
 import com.study.proudcat.domain.post.entity.Post;
 import com.study.proudcat.domain.post.repository.PostRepository;
@@ -63,6 +63,7 @@ public class PostService {
 
     @Transactional
     public void writePostStoreImageDB(WritePostRequest request, MultipartFile image) throws IOException {
+        log.info("PostService writePostStoreImageDB run..");
         ImageData imageData = storageRepository.save(
                 ImageData.builder()
                         .name(image.getOriginalFilename())
@@ -106,7 +107,7 @@ public class PostService {
         Page<Post> postPage = postRepository.findAllPostsPage(title, pageable);
         List<FindPostResponse> responses = new ArrayList<>();
 
-        postPage.forEach(post ->{
+        postPage.forEach(post -> {
             String filename = post.getFilePath();
             ImageData image = storageRepository.findByName(filename)
                     .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
@@ -126,11 +127,10 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostDetail getPostWithCommentsById(Long postId) {
+    public PostDetails getPostWithCommentsById(Long postId) throws IOException {
         log.info("PostService getPostWithCommentsById run..");
         Post post = getPostEntity(postId);
-
-        return PostDetail.from(post);
+        return PostDetails.from(post, getByteFile(post.getFilePath()));
     }
 
     @Transactional
