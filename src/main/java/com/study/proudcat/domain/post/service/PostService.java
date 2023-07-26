@@ -6,7 +6,6 @@ import com.study.proudcat.domain.post.dto.request.ModifyPostRequest;
 import com.study.proudcat.domain.post.dto.request.WritePostRequest;
 import com.study.proudcat.domain.post.dto.response.FindPostResponse;
 import com.study.proudcat.domain.post.dto.response.PostDetails;
-import com.study.proudcat.domain.post.dto.response.PostListResponse;
 import com.study.proudcat.domain.post.entity.Post;
 import com.study.proudcat.domain.post.repository.PostRepository;
 import com.study.proudcat.domain.storage.entity.ImageData;
@@ -95,11 +94,19 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostListResponse> getPostsSearchList(String title, Pageable pageable) {
+    public List<FindPostResponse> getPostsSearchList(String title, Pageable pageable) {
         log.info("PostService getPostsSearchList run..");
         Page<Post> postPage = postRepository.findAllPostsPage(title, pageable);
-        log.info(postPage.getContent().toString());
-        return postPage.map(PostListResponse::from);
+        List<FindPostResponse> responses = new ArrayList<>();
+        postPage.forEach(post -> {
+            try {
+                byte[] byteFile = getByteFile(post.getFilePath());
+                responses.add(FindPostResponse.from(post, byteFile));
+            } catch (IOException e) {
+                log.error("전체 게시판 목록 조회 에러");
+            }
+        });
+        return responses;
     }
 
     @Transactional(readOnly = true)

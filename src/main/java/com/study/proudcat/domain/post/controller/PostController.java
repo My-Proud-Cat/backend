@@ -72,7 +72,7 @@ public class PostController {
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "sort", defaultValue = "createdAt", required = false) String sort) {
         Pageable pageable = PageRequest.of(0, 4, Sort.by(sort));
-        return ResponseEntity.ok(postService.getPostsSearchList(title, pageable).getContent());
+        return ResponseEntity.ok(postService.getPostsSearchList(title, pageable));
     }
 
     @Operation(summary = "게시물 상세 조회", description = "게시물 상세 조회 메서드입니다.")
