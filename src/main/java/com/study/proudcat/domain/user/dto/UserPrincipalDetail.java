@@ -1,8 +1,7 @@
 package com.study.proudcat.domain.user.dto;
 
+import com.study.proudcat.domain.user.entity.Role;
 import com.study.proudcat.domain.user.entity.User;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,15 +9,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-@Getter
-@RequiredArgsConstructor
-public class UserPrincipalDetail implements UserDetails {
-
-    private final User user;
+public record UserPrincipalDetail(User user) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(user.getRole().name()));
+        return List.of(new SimpleGrantedAuthority(Role.ROLE_USER.name()));
     }
 
     @Override
