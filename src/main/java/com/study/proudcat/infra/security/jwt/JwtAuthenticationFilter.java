@@ -1,15 +1,16 @@
 package com.study.proudcat.infra.security.jwt;
 
 import com.study.proudcat.infra.security.CustomUserDetailsService;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -25,34 +26,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String jwt = extractTokenFromRequest(request);
+        String authorization = request.getHeader("Authorization");
+        if (StringUtils.hasText(authorization) && authorization.startsWith("Bearer ")) {
+            String atk = authorization.substring(7);
+            try {
+                Subject subject = jwtTokenProvider.getSubject(atk);
+                String requestURI = request.getRequestURI();
 
-        if (StringUtils.hasText(jwt)) {
-            String userEmail = jwtTokenProvider.extractEmail(jwt);
-
-            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = customUserDetailsService.loadUserByUsername(userEmail);
-
-                if (jwtTokenProvider.isTokenValid(jwt, userDetails)) {
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
-
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                // Request URI가 /auth/reissue인 경우에만 허용한다
+                if (subject.type().equals("RTK") && !requestURI.equals("/auth/reissue")) {
+                    throw new JwtException("토큰을 확인하세요");
                 }
+
+                UserDetails userDetails = customUserDetailsService.loadUserByUsername(subject.email());
+                Authentication token = new UsernamePasswordAuthenticationToken(
+                        userDetails, "", userDetails.getAuthorities());
+
+                SecurityContextHolder.getContext().setAuthentication(token);
+            } catch (JwtException e) {
+                request.setAttribute("exception", e.getMessage());
             }
         }
         filterChain.doFilter(request, response);
-    }
-
-    private String extractTokenFromRequest(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
-            return token.substring(7);
-        }
-        return null;
     }
 }

@@ -1,12 +1,13 @@
 package com.study.proudcat.domain.user.controller;
 
-import com.study.proudcat.domain.user.dto.LoginRequest;
-import com.study.proudcat.domain.user.dto.SignupRequest;
-import com.study.proudcat.domain.user.dto.TokenDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.study.proudcat.domain.user.dto.*;
 import com.study.proudcat.domain.user.service.AuthService;
+import com.study.proudcat.infra.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,23 +17,33 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody SignupRequest request) {
+    @PostMapping("/sign-up")
+    public ResponseEntity<UserResponse> signup(@RequestBody SignupRequest request) {
         log.info("AuthController signup run..");
-        authService.signup(request);
-        return ResponseEntity.ok("User registered successfully!");
+        return ResponseEntity.ok(authService.signup(request));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenDto> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) throws JsonProcessingException {
         log.info("AuthController login run..");
-        return ResponseEntity.ok(authService.login(request));
+        UserResponse userResponse = authService.login(request);
+        return ResponseEntity.ok(jwtTokenProvider.createTokenByLogin(userResponse));
     }
 
     @GetMapping("/signin")
     public String sign() {
         log.info("실행됨");
         return "hello";
+    }
+
+    //access 토큰 재발급
+    @GetMapping("/reissue")
+    public TokenResponse reissue(
+            @AuthenticationPrincipal UserPrincipalDetail userPrincipalDetail
+            )throws JsonProcessingException {
+        UserResponse userResponse = UserResponse.of(userPrincipalDetail.user());
+        return jwtTokenProvider.reissueAtk(userResponse);
     }
 }
