@@ -22,7 +22,7 @@ public class Post extends BaseTimeEntity {
     private String title;
 
     @Lob
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "LONGTEXT")
     private String describe;
 
     @Column(nullable = false)

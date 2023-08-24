@@ -50,28 +50,28 @@ public class PostController {
         postService.writePostStoreImageDB(request, image);
         return ResponseEntity.noContent().build();
     }
-
-    @Operation(summary = "게시물 리스트 조회(DB에 저장된 이미지 포함. Frontend는 아직 안해도됨)", description = "전체 게시물 조회 메서드입니다.")
-    @GetMapping("/listWithimage")
-    public ResponseEntity<?> getPostsSearchListImage(
-            @RequestParam(value = "title", required = false) String title,
-            @RequestParam(value = "sort", defaultValue = "createdAt", required = false) String sort) {
-        Pageable pageable = PageRequest.of(0, 4, Sort.by(sort));
-        return ResponseEntity.ok(postService.getPostsSearchListImage(title, pageable));
-    }
-
-    @Operation(summary = "게시물 리스트 조회", description = "전체 게시물 조회 메서드입니다.")
-    @GetMapping
-    public ResponseEntity<?> getAllPosts() {
-        return ResponseEntity.ok(postService.getAllPosts());
-    }
+//
+//    @Operation(summary = "게시물 리스트 조회(DB에 저장된 이미지 포함. Frontend는 아직 안해도됨)", description = "전체 게시물 조회 메서드입니다.")
+//    @GetMapping("/listWithimage")
+//    public ResponseEntity<?> getPostsSearchListImage(
+//            @RequestParam(value = "title", required = false) String title,
+//            @RequestParam(value = "sort", defaultValue = "createdAt", required = false) String sort) {
+//        Pageable pageable = PageRequest.of(0, 4, Sort.by(sort));
+//        return ResponseEntity.ok(postService.getPostsSearchListImage(title, pageable));
+//    }
+//
+//    @Operation(summary = "게시물 리스트 조회", description = "전체 게시물 조회 메서드입니다.")
+//    @GetMapping
+//    public ResponseEntity<?> getAllPosts() {
+//        return ResponseEntity.ok(postService.getAllPosts());
+//    }
 
     @Operation(summary = "게시물 전체 조회(페이징)", description = "제목으로 검색, 추천순/최신순 정렬 가능")
     @GetMapping("/list/paging")
     public ResponseEntity<?> getPostListPaging(
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "sort", defaultValue = "createdAt", required = false) String sort) {
-        Pageable pageable = PageRequest.of(0, 4, Sort.by(sort));
+        Pageable pageable = PageRequest.of(0, 20, Sort.by(sort));
         return ResponseEntity.ok(postService.getPostsSearchList(title, pageable));
     }
 

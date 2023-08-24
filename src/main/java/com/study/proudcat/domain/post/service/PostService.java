@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -77,60 +78,55 @@ public class PostService {
     }
 
 
-    @Transactional(readOnly = true)
-    public List<FindPostResponse> getAllPosts() {
-        log.info("PostService getAllPosts run..");
-        List<Post> posts = postRepository.findAll();
-        List<FindPostResponse> responses = new ArrayList<>();
-        posts.forEach(post -> {
-            try {
-                byte[] byteFile = getByteFile(post.getFilePath());
-                responses.add(FindPostResponse.from(post, byteFile));
-            } catch (IOException e) {
-                log.error("전체 게시판 목록 조회 에러");
-            }
-        });
-        return responses;
-    }
+//    @Transactional(readOnly = true)
+//    public List<FindPostResponse> getAllPosts() {
+//        log.info("PostService getAllPosts run..");
+//        List<Post> posts = postRepository.findAll();
+//        List<FindPostResponse> responses = new ArrayList<>();
+//        posts.forEach(post -> {
+//            try {
+//                byte[] byteFile = getByteFile(post.getFilePath());
+//                responses.add(FindPostResponse.from(post, byteFile));
+//            } catch (IOException e) {
+//                log.error("전체 게시판 목록 조회 에러");
+//            }
+//        });
+//        return responses;
+//    }
 
     @Transactional(readOnly = true)
     public List<FindPostResponse> getPostsSearchList(String title, Pageable pageable) {
         log.info("PostService getPostsSearchList run..");
         Page<Post> postPage = postRepository.findAllPostsPage(title, pageable);
         List<FindPostResponse> responses = new ArrayList<>();
-        postPage.forEach(post -> {
-            try {
-                byte[] byteFile = getByteFile(post.getFilePath());
-                responses.add(FindPostResponse.from(post, byteFile));
-            } catch (IOException e) {
-                log.error("전체 게시판 목록 조회 에러");
-            }
-        });
-        return responses;
+        return postPage.getContent()
+                .stream()
+                .map(FindPostResponse::from)
+                .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
-    public List<FindPostResponse> getPostsSearchListImage(String title, Pageable pageable) {
-        Page<Post> postPage = postRepository.findAllPostsPage(title, pageable);
-        List<FindPostResponse> responses = new ArrayList<>();
-
-        postPage.forEach(post -> {
-            String filename = post.getFilePath();
-            ImageData image = storageRepository.findByName(filename)
-                    .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
-            responses.add(FindPostResponse.from(post, ImageUtils.decompressImage(image.getImageData())));
-        });
-
-        return responses;
-    }
+//    @Transactional(readOnly = true)
+//    public List<FindPostResponse> getPostsSearchListImage(String title, Pageable pageable) {
+//        Page<Post> postPage = postRepository.findAllPostsPage(title, pageable);
+//        List<FindPostResponse> responses = new ArrayList<>();
+//
+//        postPage.forEach(post -> {
+//            String filename = post.getFilePath();
+//            ImageData image = storageRepository.findByName(filename)
+//                    .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
+//            responses.add(FindPostResponse.from(post, ImageUtils.decompressImage(image.getImageData())));
+//        });
+//
+//        return responses;
+//    }
 
 
     @Transactional(readOnly = true)
-    public FindPostResponse getPostById(Long postId) throws IOException {
+    public FindPostResponse getPostById(Long postId) {
         log.info("PostService getPostById run..");
         Post post = getPostEntity(postId);
 
-        return FindPostResponse.from(post, getByteFile(post.getFilePath()));
+        return FindPostResponse.from(post);
     }
 
     @Transactional(readOnly = true)
