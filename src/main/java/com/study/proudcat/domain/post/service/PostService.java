@@ -105,20 +105,20 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
-//    @Transactional(readOnly = true)
-//    public List<FindPostResponse> getPostsSearchListImage(String title, Pageable pageable) {
-//        Page<Post> postPage = postRepository.findAllPostsPage(title, pageable);
-//        List<FindPostResponse> responses = new ArrayList<>();
-//
-//        postPage.forEach(post -> {
-//            String filename = post.getFilePath();
-//            ImageData image = storageRepository.findByName(filename)
-//                    .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
-//            responses.add(FindPostResponse.from(post, ImageUtils.decompressImage(image.getImageData())));
-//        });
-//
-//        return responses;
-//    }
+    @Transactional(readOnly = true)
+    public List<FindPostResponse> getPostsSearchListImage(String title, Pageable pageable) {
+        Page<Post> postPage = postRepository.findAllPostsPage(title, pageable);
+        List<FindPostResponse> responses = new ArrayList<>();
+
+        postPage.forEach(post -> {
+            String filename = post.getFilePath();
+            ImageData image = storageRepository.findByName(filename)
+                    .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
+            responses.add(FindPostResponse.from(post));
+        });
+
+        return responses;
+    }
 
 
     @Transactional(readOnly = true)

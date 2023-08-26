@@ -24,7 +24,8 @@ public class FileUtils {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
         String current_date = simpleDateFormat.format(new Date());
 
-        String path = FOLDER_PATH + "photo" + File.separator + current_date;
+        String absolutePath = new File("").getAbsolutePath() + "\\";
+        String path = absolutePath + "photo" + File.separator + current_date;
         File file = new File(path);
 
         //해당 경로가 존재하지 않으면 디렉토리 생성
