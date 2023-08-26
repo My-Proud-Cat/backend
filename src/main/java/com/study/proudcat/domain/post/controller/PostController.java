@@ -42,23 +42,23 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "게시물 작성(이미지 DB에 저장. Frontend는 아직 안해도됨)", description = "이미지를 포함한 게시물 작성 메서드. 아직 FE는 신경 안써도됨요")
-    @PostMapping(value = "/writeWithImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> writePostImageDB(
-            @RequestPart(value = "request") @Parameter(schema =@Schema(type = "string", format = "binary")) WritePostRequest request,
-            @RequestPart(value = "image") MultipartFile image) throws IOException {
-        postService.writePostStoreImageDB(request, image);
-        return ResponseEntity.noContent().build();
-    }
+//    @Operation(summary = "게시물 작성(이미지 DB에 저장. Frontend는 아직 안해도됨)", description = "이미지를 포함한 게시물 작성 메서드. 아직 FE는 신경 안써도됨요")
+//    @PostMapping(value = "/writeWithImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<Void> writePostImageDB(
+//            @RequestPart(value = "request") @Parameter(schema =@Schema(type = "string", format = "binary")) WritePostRequest request,
+//            @RequestPart(value = "image") MultipartFile image) throws IOException {
+//        postService.writePostStoreImageDB(request, image);
+//        return ResponseEntity.noContent().build();
+//    }
 
-    @Operation(summary = "게시물 리스트 조회(DB에 저장된 이미지 포함. Frontend는 아직 안해도됨)", description = "전체 게시물 조회 메서드입니다.")
-    @GetMapping("/listWithimage")
-    public ResponseEntity<?> getPostsSearchListImage(
-            @RequestParam(value = "title", required = false) String title,
-            @RequestParam(value = "sort", defaultValue = "createdAt", required = false) String sort) {
-        Pageable pageable = PageRequest.of(0, 4, Sort.by(sort));
-        return ResponseEntity.ok(postService.getPostsSearchListImage(title, pageable));
-    }
+//    @Operation(summary = "게시물 리스트 조회(DB에 저장된 이미지 포함. Frontend는 아직 안해도됨)", description = "전체 게시물 조회 메서드입니다.")
+//    @GetMapping("/listWithimage")
+//    public ResponseEntity<?> getPostsSearchListImage(
+//            @RequestParam(value = "title", required = false) String title,
+//            @RequestParam(value = "sort", defaultValue = "createdAt", required = false) String sort) {
+//        Pageable pageable = PageRequest.of(0, 4, Sort.by(sort));
+//        return ResponseEntity.ok(postService.getPostsSearchListImage(title, pageable));
+//    }
 
 //    @Operation(summary = "게시물 리스트 조회", description = "전체 게시물 조회 메서드입니다.")
 //    @GetMapping

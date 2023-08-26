@@ -8,12 +8,10 @@ import com.study.proudcat.domain.post.dto.response.FindPostResponse;
 import com.study.proudcat.domain.post.dto.response.PostDetails;
 import com.study.proudcat.domain.post.entity.Post;
 import com.study.proudcat.domain.post.repository.PostRepository;
-import com.study.proudcat.domain.storage.entity.ImageData;
 import com.study.proudcat.domain.storage.repository.StorageRepository;
 import com.study.proudcat.infra.exception.ErrorCode;
 import com.study.proudcat.infra.exception.RestApiException;
 import com.study.proudcat.infra.utils.FileUtils;
-import com.study.proudcat.infra.utils.ImageUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -56,26 +54,26 @@ public class PostService {
         fileDataRepository.save(fileData);
 
         Post post = request.toEntity();
-        post.setFilePath(fileData.getFilePath());
+        post.setFileId(fileData.getId());
 
         postRepository.save(post);
     }
 
-    @Transactional
-    public void writePostStoreImageDB(WritePostRequest request, MultipartFile image) throws IOException {
-        log.info("PostService writePostStoreImageDB run..");
-        ImageData imageData = storageRepository.save(
-                ImageData.builder()
-                        .name(image.getOriginalFilename())
-                        .type(image.getContentType())
-                        .imageData(ImageUtils.compressImage(image.getBytes()))
-                        .build());
-
-        Post post = request.toEntity();
-        post.setFilePath(image.getOriginalFilename());
-
-        postRepository.save(post);
-    }
+//    @Transactional
+//    public void writePostStoreImageDB(WritePostRequest request, MultipartFile image) throws IOException {
+//        log.info("PostService writePostStoreImageDB run..");
+//        ImageData imageData = storageRepository.save(
+//                ImageData.builder()
+//                        .name(image.getOriginalFilename())
+//                        .type(image.getContentType())
+//                        .imageData(ImageUtils.compressImage(image.getBytes()))
+//                        .build());
+//
+//        Post post = request.toEntity();
+//        post.setFilePath(image.getOriginalFilename());
+//
+//        postRepository.save(post);
+//    }
 
 
 //    @Transactional(readOnly = true)
@@ -105,20 +103,20 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
-    public List<FindPostResponse> getPostsSearchListImage(String title, Pageable pageable) {
-        Page<Post> postPage = postRepository.findAllPostsPage(title, pageable);
-        List<FindPostResponse> responses = new ArrayList<>();
-
-        postPage.forEach(post -> {
-            String filename = post.getFilePath();
-            ImageData image = storageRepository.findByName(filename)
-                    .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
-            responses.add(FindPostResponse.from(post));
-        });
-
-        return responses;
-    }
+//    @Transactional(readOnly = true)
+//    public List<FindPostResponse> getPostsSearchListImage(String title, Pageable pageable) {
+//        Page<Post> postPage = postRepository.findAllPostsPage(title, pageable);
+//        List<FindPostResponse> responses = new ArrayList<>();
+//
+//        postPage.forEach(post -> {
+//            String filename = post.getFilePath();
+//            ImageData image = storageRepository.findByName(filename)
+//                    .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
+//            responses.add(FindPostResponse.from(post));
+//        });
+//
+//        return responses;
+//    }
 
 
     @Transactional(readOnly = true)
@@ -133,7 +131,7 @@ public class PostService {
     public PostDetails getPostWithCommentsById(Long postId) throws IOException {
         log.info("PostService getPostWithCommentsById run..");
         Post post = getPostEntity(postId);
-        return PostDetails.from(post, getByteFile(post.getFilePath()));
+        return PostDetails.from(post);
     }
 
     @Transactional

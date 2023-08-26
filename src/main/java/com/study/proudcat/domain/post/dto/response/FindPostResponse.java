@@ -4,7 +4,7 @@ import com.study.proudcat.domain.post.entity.Post;
 
 import java.time.LocalDateTime;
 
-public record FindPostResponse(Long id, String title, int heartCnt, int view, String filePath,
+public record FindPostResponse(Long id, String title, int heartCnt, int view, Long fileId,
                                LocalDateTime createdAt, LocalDateTime modifiedAt) {
 
     public static FindPostResponse from(Post post) {
@@ -13,7 +13,7 @@ public record FindPostResponse(Long id, String title, int heartCnt, int view, St
                 post.getTitle(),
                 post.getHearts().size(),
                 post.getView(),
-                post.getFilePath(),
+                post.getFileId(),
                 post.getCreatedAt(),
                 post.getModifiedAt()
         );

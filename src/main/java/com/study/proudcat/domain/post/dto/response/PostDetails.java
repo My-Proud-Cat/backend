@@ -10,9 +10,9 @@ import java.util.stream.Collectors;
 
 public record PostDetails(
         Long postId, String title, String describe, Set<CommentDetail> commentDetails,
-        int heartCnt, int view, LocalDateTime createdAt, LocalDateTime modifiedAt, byte[] fileData
+        int heartCnt, int view, LocalDateTime createdAt, LocalDateTime modifiedAt, Long fileId
 ) {
-    public static PostDetails from(Post post, byte[] byteFile) {
+    public static PostDetails from(Post post) {
         return new PostDetails(
                 post.getId(),
                 post.getTitle(),
@@ -25,7 +25,7 @@ public record PostDetails(
                 post.getView(),
                 post.getCreatedAt(),
                 post.getModifiedAt(),
-                byteFile
+                post.getFileId()
         );
     }
 }

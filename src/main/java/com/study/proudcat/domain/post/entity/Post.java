@@ -39,13 +39,13 @@ public class Post extends BaseTimeEntity {
     @ToString.Exclude
     private Set<Heart> hearts;
 
-    private String filePath;
+    private Long fileId;
 
     @Builder
-    public Post(String title, String describe, String filePath, Set<Comment> comments, Set<Heart> hearts) {
+    public Post(String title, String describe, Long fileId, Set<Comment> comments, Set<Heart> hearts) {
         this.title = title;
         this.describe = describe;
-        this.filePath = filePath;
+        this.fileId= fileId;
         this.view = 0;
         this.status = Status.REGISTERED;
         this.comments = comments;
@@ -61,7 +61,7 @@ public class Post extends BaseTimeEntity {
         this.status = Status.DELETED;
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
+    public void setFileId(Long fileId) {
+        this.fileId = fileId;
     }
 }
