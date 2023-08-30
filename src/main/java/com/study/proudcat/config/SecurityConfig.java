@@ -62,6 +62,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests()
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/auth/testLogin").authenticated()
                 .anyRequest().permitAll()   //우선 인증/인가 적용 없이도 모두 접근할 수 있도록 설정
 
                 .and()
