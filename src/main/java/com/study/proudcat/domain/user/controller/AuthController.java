@@ -46,4 +46,9 @@ public class AuthController {
         UserResponse userResponse = UserResponse.of(userPrincipalDetail.user());
         return jwtTokenProvider.reissueAtk(userResponse);
     }
+
+    @GetMapping("/testLogin")
+    public String loginTest(@AuthenticationPrincipal UserPrincipalDetail userPrincipalDetail) {
+        return "logined member : " + userPrincipalDetail.getUsername();
+    }
 }
