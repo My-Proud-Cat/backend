@@ -32,12 +32,6 @@ public class AuthController {
         return ResponseEntity.ok(jwtTokenProvider.createTokenByLogin(userResponse));
     }
 
-    @GetMapping("/signin")
-    public String sign() {
-        log.info("실행됨");
-        return "hello";
-    }
-
     //access 토큰 재발급
     @GetMapping("/reissue")
     public TokenResponse reissue(
@@ -48,7 +42,7 @@ public class AuthController {
     }
 
     @GetMapping("/testLogin")
-    public String loginTest(@AuthenticationPrincipal UserPrincipalDetail userPrincipalDetail) {
-        return "logined member : " + userPrincipalDetail.getUsername();
+    public ResponseEntity<String> loginTest(@AuthenticationPrincipal UserPrincipalDetail userPrincipalDetail) {
+        return ResponseEntity.ok("logined Member : "+ userPrincipalDetail.getUsername());
     }
 }
