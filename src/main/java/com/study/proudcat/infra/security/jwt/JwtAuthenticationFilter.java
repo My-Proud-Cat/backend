@@ -26,6 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
         String authorization = request.getHeader("Authorization");
         if (StringUtils.hasText(authorization) && authorization.startsWith("Bearer ")) {
             String atk = authorization.substring(7);
@@ -33,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Subject subject = jwtTokenProvider.getSubject(atk);
                 String requestURI = request.getRequestURI();
 
-                // Request URI가 /auth/reissue인 경우에만 허용한다
+                // Request URI가 /auth/reissue인 경우에만 refreshToken 전송을 허용한다(탈취 위험 때문)
                 if (subject.type().equals("RTK") && !requestURI.equals("/auth/reissue")) {
                     throw new JwtException("토큰을 확인하세요");
                 }
@@ -50,3 +51,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
+
+

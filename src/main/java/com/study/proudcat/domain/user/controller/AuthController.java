@@ -3,7 +3,7 @@ package com.study.proudcat.domain.user.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.study.proudcat.domain.user.dto.*;
 import com.study.proudcat.domain.user.service.AuthService;
-import com.study.proudcat.infra.security.jwt.JwtTokenProvider;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,32 +17,33 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-    private final JwtTokenProvider jwtTokenProvider;
 
+    @Operation(summary = "회원 가입")
     @PostMapping("/sign-up")
     public ResponseEntity<UserResponse> signup(@RequestBody SignupRequest request) {
         log.info("AuthController signup run..");
         return ResponseEntity.ok(authService.signup(request));
     }
 
+    @Operation(summary = "로그인", description = "이메일, 비밀번호 입력 후 로그인 성공시 jwt 발급 됨")
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) throws JsonProcessingException {
         log.info("AuthController login run..");
-        UserResponse userResponse = authService.login(request);
-        return ResponseEntity.ok(jwtTokenProvider.createTokenByLogin(userResponse));
+        return ResponseEntity.ok(authService.login(request));
     }
 
-    //access 토큰 재발급
+    @Operation(summary = "accessToken 재발급", description = "accessToken을 재발급하는 기능(refreshToken은 그대로)")
     @GetMapping("/reissue")
-    public TokenResponse reissue(
+    public ResponseEntity<TokenResponse> reissue(
             @AuthenticationPrincipal UserPrincipalDetail userPrincipalDetail
-            )throws JsonProcessingException {
+    ) throws JsonProcessingException {
+
         UserResponse userResponse = UserResponse.of(userPrincipalDetail.user());
-        return jwtTokenProvider.reissueAtk(userResponse);
+        return ResponseEntity.ok(authService.reissueAtk(userResponse));
     }
 
     @GetMapping("/testLogin")
     public ResponseEntity<String> loginTest(@AuthenticationPrincipal UserPrincipalDetail userPrincipalDetail) {
-        return ResponseEntity.ok("logined Member : "+ userPrincipalDetail.getUsername());
+        return ResponseEntity.ok("logined Member : " + userPrincipalDetail.getUsername());
     }
 }
