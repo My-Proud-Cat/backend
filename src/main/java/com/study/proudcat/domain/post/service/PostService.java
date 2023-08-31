@@ -148,9 +148,13 @@ public class PostService {
     }
 
     @Transactional
-    public void deletePost(Long postId) {
+    public void deletePost(Long postId, String email) {
         log.info("PostService deletePost run..");
         Post post = getPostEntity(postId);
+
+        if (!post.isSameWriter(email)) {
+            throw new RestApiException(ErrorCode.NOT_PROPER_USER);
+        }
         postRepository.delete(post);
     }
 

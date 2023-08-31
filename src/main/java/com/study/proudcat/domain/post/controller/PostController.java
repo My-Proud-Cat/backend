@@ -94,8 +94,8 @@ public class PostController {
 
     @Operation(summary = "게시물 삭제", description = "게시물 삭제 메소드입니다.")
     @DeleteMapping("/{postId}")
-    public ResponseEntity<Void> deletePost(@PathVariable("postId") Long postId) {
-        postService.deletePost(postId);
+    public ResponseEntity<Void> deletePost(@PathVariable("postId") Long postId, @AuthenticationPrincipal UserPrincipalDetail user) {
+        postService.deletePost(postId, user.getUsername());
         return ResponseEntity.noContent().build();
     }
 
