@@ -137,9 +137,13 @@ public class PostService {
     }
 
     @Transactional
-    public void modifyPost(Long postId, ModifyPostRequest request) {
+    public void modifyPost(Long postId, ModifyPostRequest request, String email) {
         log.info("PostService modifyPost run..");
         Post post = getPostEntity(postId);
+
+        if (!post.isSameWriter(email)) {
+            throw new RestApiException(ErrorCode.NOT_PROPER_USER);
+        }
         post.modify(request.getTitle(), request.getDescribe());
     }
 

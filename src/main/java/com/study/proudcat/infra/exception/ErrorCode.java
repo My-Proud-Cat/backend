@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
     NO_TARGET(HttpStatus.NOT_FOUND, "해당되는 대상이 없습니다."),
+    NOT_PROPER_USER(HttpStatus.BAD_REQUEST, "권한이 없는 회원입니다"),
     DUPLICATED_EMAIL(HttpStatus.BAD_REQUEST, "이미 가입한 이메일 입니다."),
     DUPLICATED_NICKNAME(HttpStatus.BAD_REQUEST, "중복된 닉네임 입니다."),
     NOT_VALID_TOKEN(HttpStatus.BAD_REQUEST, "Token이 유효하지 않습니다."),

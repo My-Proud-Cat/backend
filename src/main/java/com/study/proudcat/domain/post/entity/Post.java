@@ -6,6 +6,7 @@ import com.study.proudcat.infra.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -66,6 +67,10 @@ public class Post extends BaseTimeEntity {
     public void modify(String title, String describe) {
         this.title = title;
         this.describe = describe;
+    }
+
+    public boolean isSameWriter(String email) {
+        return Objects.equals(this.user.getEmail(), email);
     }
 
     public void delete() {
