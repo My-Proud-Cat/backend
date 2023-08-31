@@ -5,6 +5,7 @@ import com.study.proudcat.domain.post.dto.request.WritePostRequest;
 import com.study.proudcat.domain.post.dto.response.FindPostResponse;
 import com.study.proudcat.domain.post.dto.response.PostDetails;
 import com.study.proudcat.domain.post.service.PostService;
+import com.study.proudcat.domain.user.dto.UserPrincipalDetail;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,19 +28,14 @@ public class PostController {
 
     private final PostService postService;
 
-    @Operation(summary = "게시물 작성 테스트용")
-    @PostMapping("/test")
-    public ResponseEntity<Void> writePost(@RequestBody WritePostRequest request) {
-        postService.writePostTest(request);
-        return ResponseEntity.noContent().build();
-    }
 
     @Operation(summary = "게시물 작성(이미지 포함)", description = "게시물 작성 메서드입니다. 이미지 첨부를 포함합니다.")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> writePost(
-            @RequestPart(value = "request") @Parameter(schema =@Schema(type = "string", format = "binary")) WritePostRequest request,
-            @RequestPart(value = "image") MultipartFile image) throws IOException {
-        postService.writePost(request, image);
+            @RequestPart(value = "request") @Parameter(schema = @Schema(type = "string", format = "binary")) WritePostRequest request,
+            @RequestPart(value = "image") MultipartFile image,
+            @AuthenticationPrincipal UserPrincipalDetail user) throws IOException {
+        postService.writePost(request, image, user.getUsername());
         return ResponseEntity.noContent().build();
     }
 
@@ -77,13 +74,13 @@ public class PostController {
 
     @Operation(summary = "게시물 상세 조회", description = "게시물 상세 조회 메서드입니다.")
     @GetMapping("/{postId}")
-    public ResponseEntity<FindPostResponse> getPostById(@PathVariable("postId") Long postId) throws IOException {
+    public ResponseEntity<FindPostResponse> getPostById(@PathVariable("postId") Long postId) {
         return ResponseEntity.ok(postService.getPostById(postId));
     }
 
     @Operation(summary = "게시물 상세조회(댓글, 좋아요)", description = "게시물 상세 조회 메서드입니다. 댓글과 좋아요 수를 포함합니다..")
     @GetMapping("/{postId}/comments")
-    public ResponseEntity<PostDetails> getPostWithCommentsByPostId(@PathVariable(name = "postId") Long postId) throws IOException {
+    public ResponseEntity<PostDetails> getPostWithCommentsByPostId(@PathVariable(name = "postId") Long postId) {
         postService.updatePostView(postId);
         return ResponseEntity.ok(postService.getPostWithCommentsById(postId));
     }

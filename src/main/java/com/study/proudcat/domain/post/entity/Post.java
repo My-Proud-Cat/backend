@@ -1,6 +1,7 @@
 package com.study.proudcat.domain.post.entity;
 
 import com.study.proudcat.domain.comment.entity.Comment;
+import com.study.proudcat.domain.user.entity.User;
 import com.study.proudcat.infra.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -41,11 +42,21 @@ public class Post extends BaseTimeEntity {
 
     private Long fileId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @ToString.Exclude
+    private User user;
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     @Builder
-    public Post(String title, String describe, Long fileId, Set<Comment> comments, Set<Heart> hearts) {
+    public Post(String title, String describe, Long fileId, User user, Set<Comment> comments, Set<Heart> hearts) {
         this.title = title;
         this.describe = describe;
-        this.fileId= fileId;
+        this.fileId = fileId;
+        this.user = user;
         this.view = 0;
         this.status = Status.REGISTERED;
         this.comments = comments;
