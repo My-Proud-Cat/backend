@@ -25,7 +25,7 @@ public class FileDataController {
         return ResponseEntity.ok(uploadImage);
     }
 
-    @Operation(summary = "이미지 다운로드(filePath)", description = "db에 저장된 filePath에서 파일을 다운로드하는 방식입니다.")
+    @Operation(summary = "이미지 다운로드(fileId)", description = "fileId를 통해 이미지를 다운로드하는 방식입니다.")
     @GetMapping("/{fileId}")
     public ResponseEntity<?> downloadImage(@PathVariable("fileId") Long fileId) throws IOException{
         byte[] downloadImage = fileDataService.downloadImage(fileId);
