@@ -42,8 +42,8 @@ public class AuthController {
         return ResponseEntity.ok(authService.reissueAtk(userResponse));
     }
 
-    @GetMapping("/testLogin")
-    public ResponseEntity<String> loginTest(@AuthenticationPrincipal UserPrincipalDetail userPrincipalDetail) {
-        return ResponseEntity.ok("logined Member : " + userPrincipalDetail.getUsername());
+    @GetMapping("/user-detail")
+    public ResponseEntity<String> getUserDetail(@AuthenticationPrincipal UserPrincipalDetail userPrincipalDetail) {
+        return ResponseEntity.ok(userPrincipalDetail.getUserNickname());
     }
 }

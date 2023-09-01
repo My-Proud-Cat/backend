@@ -1,6 +1,7 @@
 package com.study.proudcat.domain.post.dto.request;
 
 import com.study.proudcat.domain.post.entity.Post;
+import com.study.proudcat.domain.user.entity.User;
 import lombok.*;
 
 @Getter
@@ -16,10 +17,11 @@ public class WritePostRequest {
         this.describe = describe;
     }
 
-    public Post toEntity() {
+    public Post toEntity(User user) {
         return Post.builder()
                 .title(title)
                 .describe(describe)
+                .user(user)
                 .build();
     }
 }
