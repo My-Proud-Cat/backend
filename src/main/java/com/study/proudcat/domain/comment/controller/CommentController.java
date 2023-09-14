@@ -2,9 +2,11 @@ package com.study.proudcat.domain.comment.controller;
 
 import com.study.proudcat.domain.comment.dto.CommentRequest;
 import com.study.proudcat.domain.comment.service.CommentService;
+import com.study.proudcat.domain.user.dto.UserPrincipalDetail;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,9 +20,10 @@ public class CommentController {
     @PostMapping("{postId}/comments")
     public ResponseEntity<Void> writeComment(
             @PathVariable(name = "postId") Long postId,
-            @RequestBody CommentRequest request
-    ) {
-        commentService.writeComment(postId, request);
+            @RequestBody CommentRequest request,
+            @AuthenticationPrincipal UserPrincipalDetail user
+            ) {
+        commentService.writeComment(postId, request, user.getUserId());
         return ResponseEntity.noContent().build();
     }
 
@@ -28,9 +31,10 @@ public class CommentController {
     @DeleteMapping("{postId}/comment/{commentId}")
     public ResponseEntity<Void> deleteComment(
             @PathVariable(name = "postId") Long postId,
-            @PathVariable(name = "commentId") Long commentId
+            @PathVariable(name = "commentId") Long commentId,
+            @AuthenticationPrincipal UserPrincipalDetail user
     ) {
-        commentService.deleteComment(postId, commentId);
+        commentService.deleteComment(postId, commentId, user.getUserId());
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,7 +1,7 @@
 package com.study.proudcat.domain.comment.entity;
 
-import com.study.proudcat.domain.comment.dto.CommentRequest;
 import com.study.proudcat.domain.post.entity.Post;
+import com.study.proudcat.domain.user.entity.User;
 import com.study.proudcat.infra.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,7 +9,6 @@ import lombok.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString
 public class Comment extends BaseTimeEntity {
 
     @Id
@@ -22,19 +21,16 @@ public class Comment extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
-    @ToString.Exclude
     private Post post;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @Builder
-    public Comment(String content, Post post) {
+    public Comment(String content, Post post, User user) {
         this.content = content;
         this.post = post;
-    }
-
-    public static Comment of(CommentRequest request, Post post) {
-        return Comment.builder()
-                .content(request.getContent())
-                .post(post)
-                .build();
+        this.user = user;
     }
 }
