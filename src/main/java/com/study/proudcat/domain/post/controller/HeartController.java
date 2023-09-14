@@ -1,9 +1,11 @@
 package com.study.proudcat.domain.post.controller;
 
 import com.study.proudcat.domain.post.service.HeartService;
+import com.study.proudcat.domain.user.dto.UserPrincipalDetail;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,9 +18,9 @@ public class HeartController {
     @PostMapping("/{postId}/heart")
     public ResponseEntity<Void> addHeart(
             @PathVariable(name = "postId") Long postId,
-            @RequestBody Long userId
-    ) {
-        heartService.pushHeartBtn(postId, userId);
+            @AuthenticationPrincipal UserPrincipalDetail user
+            ) {
+        heartService.pushHeartBtn(postId, user.getUserId());
         return ResponseEntity.noContent().build();
     }
 }
