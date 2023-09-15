@@ -37,7 +37,10 @@ public class AuthService {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RestApiException(ErrorCode.DUPLICATED_EMAIL);
         }
-        //닉네임 중복 허용 ??
+
+        if (userRepository.existsByNickname(request.getNickname())) {
+            throw new RestApiException(ErrorCode.DUPLICATED_NICKNAME);
+        }
 
         User user = User.builder()
                 .email(request.getEmail())
