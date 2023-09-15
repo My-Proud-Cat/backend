@@ -82,4 +82,11 @@ public class AuthService {
         String accessToken = tokenProvider.createAccessToken(userResponse);
         return new TokenResponse(accessToken, refreshToken.getValue());
     }
+
+    @Transactional
+    public void logout(String email) throws JsonProcessingException {
+        RefreshToken refreshToken = refreshTokenRepository.findByKey(email)
+                .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
+        refreshTokenRepository.delete(refreshToken);
+    }
 }
