@@ -72,11 +72,11 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostsSearchList(title, pageable));
     }
 
-    @Operation(summary = "게시물 상세 조회", description = "게시물 상세 조회 메서드입니다.")
-    @GetMapping("/{postId}")
-    public ResponseEntity<FindPostResponse> getPostById(@PathVariable("postId") Long postId) {
-        return ResponseEntity.ok(postService.getPostById(postId));
-    }
+//    @Operation(summary = "게시물 상세 조회", description = "게시물 상세 조회 메서드입니다.")
+//    @GetMapping("/{postId}")
+//    public ResponseEntity<FindPostResponse> getPostById(@PathVariable("postId") Long postId) {
+//        return ResponseEntity.ok(postService.getPostById(postId));
+//    }
 
     @Operation(summary = "게시물 상세조회(댓글, 좋아요)", description = "게시물 상세 조회 메서드입니다. 댓글과 좋아요 수를 포함합니다..")
     @GetMapping("/{postId}/comments")
@@ -96,13 +96,6 @@ public class PostController {
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable("postId") Long postId, @AuthenticationPrincipal UserPrincipalDetail user) {
         postService.deletePost(postId, user.getUsername());
-        return ResponseEntity.noContent().build();
-    }
-
-    @Operation(summary = "게시물 삭제(patchmapping. 추후 도전)", description = "게시물 삭제 메소드입니다.")
-    @PatchMapping("/{postId}/patch")
-    public ResponseEntity<Void> deletePostPatch(@PathVariable("postId") Long postId) {
-        postService.deletePostPatch(postId);
         return ResponseEntity.noContent().build();
     }
 }

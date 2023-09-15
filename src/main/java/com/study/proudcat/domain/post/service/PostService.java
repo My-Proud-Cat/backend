@@ -158,13 +158,6 @@ public class PostService {
         postRepository.delete(post);
     }
 
-    @Transactional  //추후 도전
-    public void deletePostPatch(Long postId) {
-        log.info("PostService deletePostPatch run..");
-        Post post = getPostEntity(postId);
-        post.delete();
-    }
-
     private Post getPostEntity(Long postId) {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));

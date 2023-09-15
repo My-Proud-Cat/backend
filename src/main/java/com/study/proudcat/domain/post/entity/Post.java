@@ -24,7 +24,7 @@ public class Post extends BaseTimeEntity {
     private String title;
 
     @Lob
-    @Column(nullable = false, columnDefinition = "LONGTEXT")
+    @Column(nullable = false, columnDefinition = "LONGTEXT", name = "\"describe\"")
     private String describe;
 
     @Column(nullable = false)
