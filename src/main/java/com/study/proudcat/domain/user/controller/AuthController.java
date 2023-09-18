@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.study.proudcat.domain.user.dto.*;
 import com.study.proudcat.domain.user.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +43,7 @@ public class AuthController {
     }
 
     @Operation(summary = "로그아웃")
-    @PostMapping("/logout")
+    @GetMapping("/logout")
     public ResponseEntity<?> logout(@AuthenticationPrincipal UserPrincipalDetail userPrincipalDetail) throws JsonProcessingException {
         authService.logout(userPrincipalDetail.getUsername());
         return ResponseEntity.ok("로그아웃 되었습니다.");
