@@ -23,20 +23,24 @@ public class HeartService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void pushHeartBtn(Long postId, Long userId)  {
+    public boolean pushHeartBtn(Long postId, Long userId)  {
         log.info("Heart service addHeart run..");
         Post post = getPostById(postId);
         User user = getUserById(userId);
+        boolean isPresent = heartRepository.existsByPostAndUser(post, user);
 
-        heartRepository.findHeartByPostAndUser(post, user)
-                .ifPresentOrElse(
-                        heartRepository::delete,
-                        () -> heartRepository.save(Heart.builder()
-                                .post(post)
-                                .user(user)
-                                .build())
-                );
-
+        if (isPresent) {
+            Heart heart = heartRepository.findHeartByPostAndUser(post, user)
+                    .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
+            heartRepository.delete(heart);
+        } else {
+            heartRepository.save(Heart.builder()
+                    .post(post)
+                    .user(user)
+                    .build());
+            return true;
+        }
+        return false;
     }
 
     private Post getPostById(Long postId) {
