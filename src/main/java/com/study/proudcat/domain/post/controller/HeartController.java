@@ -15,7 +15,7 @@ public class HeartController {
     private final HeartService heartService;
 
     @Operation(summary = "게시물 좋아요", description = "게시물 좋아요 버튼 클릭 메소드입니다. 이미 클릭한 버튼을 다시 클릭하면 좋아요가 취소됩니다.")
-    @PostMapping("/{postId}/heart")
+    @GetMapping("/{postId}/heart")
     public ResponseEntity<?> addHeart(
             @PathVariable(name = "postId") Long postId,
             @AuthenticationPrincipal UserPrincipalDetail user
