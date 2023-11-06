@@ -14,8 +14,8 @@ public record FindPostResponse(Long id, String title, int heartCnt, int view, Lo
                 post.getHearts().size(),
                 post.getView(),
                 post.getFileId(),
-                post.getCreatedAt(),
-                post.getModifiedAt(),
+                post.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                post.getModifiedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 post.getUser().getNickname()
         );
     }
