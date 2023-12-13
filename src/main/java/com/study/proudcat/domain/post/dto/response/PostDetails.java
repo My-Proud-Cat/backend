@@ -4,6 +4,7 @@ import com.study.proudcat.domain.comment.dto.CommentDetail;
 import com.study.proudcat.domain.post.entity.Post;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,7 +20,8 @@ public record PostDetails(
                 post.getDescribe(),
                 post.getComments()
                         .stream()
-                        .map(CommentDetail::from)
+                        .map(comment -> CommentDetail.from(comment))
+                        .sorted(Comparator.comparing(commentDetail -> commentDetail.createdAt(), Comparator.reverseOrder()))
                         .collect(Collectors.toCollection(LinkedHashSet::new)),
                 post.getHearts().size(),
                 post.getView(),
