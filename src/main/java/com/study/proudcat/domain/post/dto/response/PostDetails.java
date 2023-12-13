@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public record PostDetails(
         Long postId, String title, String describe, Set<CommentDetail> commentDetails,
-        int heartCnt, int view, String createdAt, String modifiedAt, Long fileId, String nickname
+        int heartCnt, int view, String createdAt, String modifiedAt, Long fileId, String nickname, String email
 ) {
     public static PostDetails from(Post post) {
         return new PostDetails(
@@ -26,7 +26,8 @@ public record PostDetails(
                 post.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 post.getModifiedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 post.getFileId(),
-                post.getUser().getNickname()
+                post.getUser().getNickname(),
+                post.getUser().getEmail()
         );
     }
 }

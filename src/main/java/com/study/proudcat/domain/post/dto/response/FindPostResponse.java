@@ -5,7 +5,7 @@ import com.study.proudcat.domain.post.entity.Post;
 import java.time.format.DateTimeFormatter;
 
 public record FindPostResponse(Long id, String title, int heartCnt, int view, Long fileId,
-                               String createdAt, String modifiedAt, String nickname) {
+                               String createdAt, String modifiedAt, String nickname, String email) {
 
     public static FindPostResponse from(Post post) {
         return new FindPostResponse(
@@ -16,7 +16,8 @@ public record FindPostResponse(Long id, String title, int heartCnt, int view, Lo
                 post.getFileId(),
                 post.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 post.getModifiedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                post.getUser().getNickname()
+                post.getUser().getNickname(),
+                post.getUser().getEmail()
         );
     }
 }

@@ -28,6 +28,6 @@ application:
   security:
     jwt:
       secret-key: c2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQtc2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQK
-      expiration: 600000 # 5min
+      expiration: 120000 # 5min
       refresh-token:
         expiration: 86400000 #1 day

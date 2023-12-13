@@ -51,7 +51,7 @@ public class AuthController {
 
     @Operation(summary = "사용자 정보 테스트 api", description = "로그인한 사용자의 닉네임을 반환하는 테스트 api")
     @GetMapping("/user-detail")
-    public ResponseEntity<String> getUserDetail(@AuthenticationPrincipal UserPrincipalDetail userPrincipalDetail) {
-        return ResponseEntity.ok(userPrincipalDetail.getUserNickname());
+    public ResponseEntity<UserResponse> getUserDetail(@AuthenticationPrincipal UserPrincipalDetail userPrincipalDetail) {
+        return ResponseEntity.ok(UserResponse.of(userPrincipalDetail.user()));
     }
 }
