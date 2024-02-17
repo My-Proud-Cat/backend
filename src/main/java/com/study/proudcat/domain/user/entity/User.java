@@ -10,7 +10,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @NoArgsConstructor
-@Table(name = "\"user\"")
+@Table(name = "users")
 public class User {
 
     @Id
@@ -22,11 +22,15 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Enumerated(EnumType.STRING)
+    private Provider provider;
+
     @Builder
-    public User(String nickname, String email, String password, Role role) {
+    public User(String nickname, String email, String password, Role role, Provider provider) {
         this.nickname = nickname;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.provider = provider;
     }
 }

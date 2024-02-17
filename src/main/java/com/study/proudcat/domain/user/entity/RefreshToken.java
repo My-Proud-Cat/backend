@@ -15,20 +15,15 @@ import lombok.NoArgsConstructor;
 public class RefreshToken {
 
     @Id
-    @Column(name = "rt_key")
-    private String key;
+    @Column(name = "user_id")
+    private Long userId;
 
-    @Column(name = "rt_value")
-    private String value;
+    @Column(name = "refresh")
+    private String refresh;
 
     @Builder
-    public RefreshToken(String key, String value) {
-        this.key = key;
-        this.value = value;
-    }
-
-    public RefreshToken updateValue(String token) {
-        this.value = token;
-        return this;
+    public RefreshToken(Long userId, String refresh) {
+        this.userId = userId;
+        this.refresh = refresh;
     }
 }
