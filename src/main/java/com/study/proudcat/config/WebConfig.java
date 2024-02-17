@@ -1,5 +1,7 @@
 package com.study.proudcat.config;
 
+import java.util.Arrays;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -11,7 +13,14 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry
                 .addMapping("/**")
-                .allowedOrigins("http://localhost:3000")
-                .allowedMethods("OPTIONS", "GET", "POST", "PUT", "DELETE");
+                .allowedOrigins(getAllowOrigins())
+                .allowedMethods("OPTIONS", "GET", "POST", "PUT", "DELETE", "PATCH");
+    }
+
+    private String[] getAllowOrigins() {
+        return Arrays.asList(
+            "http://127.0.0.1:3000",
+            "http://localhost:3000"
+        ).toArray(String[]::new);
     }
 }

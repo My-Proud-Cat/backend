@@ -1,75 +1,111 @@
 package com.study.proudcat.config;
 
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.*;
+
+import java.util.List;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+
 import com.study.proudcat.infra.security.jwt.JwtAccessDeniedHandler;
 import com.study.proudcat.infra.security.jwt.JwtAuthenticationEntryPoint;
 import com.study.proudcat.infra.security.jwt.JwtAuthenticationFilter;
+import com.study.proudcat.infra.security.jwt.JwtTokenProvider;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-    private final AuthenticationProvider authenticationProvider;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+	private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+	private final JwtTokenProvider jwtTokenProvider;
 
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring()
-                .requestMatchers(
-                        "/h2-console/**",
-                        "/favicon.ico",
-                        "/swagger-resources/**",
-                        "/swagger-ui.html",
-                        "/webjars/**",
-                        /* swagger v3 */
-                        "/v3/api-docs/**",
-                        "/swagger-ui/**");
-    }
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()   //csr 방식으로 사용하므로 csrf 보호 설정 비활성화
+	@Bean
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+		return authConfig.getAuthenticationManager();
+	}
 
-                .exceptionHandling()
-                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                .accessDeniedHandler(jwtAccessDeniedHandler)
+	/**
+	 * permitAll 권한을 가진 엔드포인트에 적용되는 SecurityFilterChain
+	 */
+	@Bean
+	public SecurityFilterChain securityFilterChainPermitAll(HttpSecurity http) throws Exception {
+		configureCommonSecuritySettings(http);
+		http.securityMatchers(matchers -> matchers.requestMatchers(requestPermitAll()))
+			.authorizeHttpRequests(authorize -> authorize
+				.anyRequest()
+				.permitAll());
+		return http.build();
+	}
 
-                // h2-console을 위한 설정
-                .and()
-                .headers()
-                .frameOptions()
-                .sameOrigin()
+	private RequestMatcher[] requestPermitAll() {
+		List<RequestMatcher> requestMatchers = List.of(
+			// Member
+			antMatcher("/auth/**"),
+			antMatcher("/users/sign-up"),
 
-                // Spring security는 기본적으로 세션을 사용
-                // 여기서는 사용하지 않기에 STATELESS로 설정
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			// DOCS
+			antMatcher("/swagger-ui/**"),
+			antMatcher("/swagger-ui"),
+			antMatcher("/swagger-ui.html"),
+			antMatcher("/swagger/**"),
+			antMatcher("/swagger-resources/**"),
+			antMatcher("/v3/api-docs/**"),
+			antMatcher("/webjars/**"),
+			antMatcher("/favicon.ico"),
 
-                .and()
-                .authorizeHttpRequests()
-                .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/swagger-ui/**").permitAll()
-                .requestMatchers("/auth/testLogin").authenticated()
-                .anyRequest().permitAll()   //우선 인증/인가 적용 없이도 모두 접근할 수 있도록 설정
+			// H2-CONSOLE
+			antMatcher("/h2-console/**")
+		);
+		return requestMatchers.toArray(RequestMatcher[]::new);
+	}
 
-                .and()
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+	/**
+	 * 위에서 정의된 엔드포인트 이외에는 authenticated 로 설정
+	 */
+	@Bean
+	public SecurityFilterChain securityFilterChainDefault(HttpSecurity http) throws Exception {
+		configureCommonSecuritySettings(http);
+		http.authorizeHttpRequests(authorize -> authorize
+				.anyRequest()
+				.permitAll() //TODO: 추후 권한 설정
+			)
+			.addFilterAfter(new JwtAuthenticationFilter(jwtTokenProvider), ExceptionTranslationFilter.class)
+			.exceptionHandling(exception -> {
+				exception.authenticationEntryPoint(jwtAuthenticationEntryPoint);
+				exception.accessDeniedHandler(jwtAccessDeniedHandler);
+			});
+		return http.build();
+	}
 
-        return http.build();
-    }
-
+	private void configureCommonSecuritySettings(HttpSecurity http) throws Exception {
+		http.csrf(AbstractHttpConfigurer::disable)
+			.anonymous(AbstractHttpConfigurer::disable)
+			.formLogin(AbstractHttpConfigurer::disable)
+			.httpBasic(AbstractHttpConfigurer::disable)
+			.rememberMe(AbstractHttpConfigurer::disable)
+			.logout(AbstractHttpConfigurer::disable)
+			.headers(headers -> headers
+				.frameOptions(frameOptions -> frameOptions.disable()))
+			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+	}
 }

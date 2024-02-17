@@ -2,6 +2,8 @@ package com.study.proudcat.domain.user.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Builder;
@@ -15,20 +17,18 @@ import lombok.NoArgsConstructor;
 public class RefreshToken {
 
     @Id
-    @Column(name = "rt_key")
-    private String key;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(name = "rt_value")
-    private String value;
+    @Column(name = "refresh")
+    private String refresh;
+
+    @Column(name = "user_id")
+    private Long userId;
 
     @Builder
-    public RefreshToken(String key, String value) {
-        this.key = key;
-        this.value = value;
-    }
-
-    public RefreshToken updateValue(String token) {
-        this.value = token;
-        return this;
+    public RefreshToken(Long userId, String refresh) {
+        this.userId = userId;
+        this.refresh = refresh;
     }
 }

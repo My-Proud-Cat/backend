@@ -1,95 +1,86 @@
 package com.study.proudcat.domain.user.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.study.proudcat.domain.user.dto.LoginRequest;
-import com.study.proudcat.domain.user.dto.SignupRequest;
+import com.study.proudcat.domain.user.dto.ReissueTokenRequest;
 import com.study.proudcat.domain.user.dto.TokenResponse;
-import com.study.proudcat.domain.user.dto.UserResponse;
 import com.study.proudcat.domain.user.entity.RefreshToken;
-import com.study.proudcat.domain.user.entity.Role;
 import com.study.proudcat.domain.user.entity.User;
 import com.study.proudcat.domain.user.repository.RefreshTokenRepository;
 import com.study.proudcat.domain.user.repository.UserRepository;
 import com.study.proudcat.infra.exception.ErrorCode;
 import com.study.proudcat.infra.exception.RestApiException;
+import com.study.proudcat.infra.security.auth.UserDetailsImpl;
 import com.study.proudcat.infra.security.jwt.JwtTokenProvider;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Objects;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class AuthService {
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final JwtTokenProvider tokenProvider;
+	private final UserRepository userRepository;
+	private final RefreshTokenRepository refreshTokenRepository;
+	private final JwtTokenProvider tokenProvider;
+	private final AuthenticationManager authenticationManager;
 
 
-    @Transactional
-    public UserResponse signup(SignupRequest request) {
-        log.info("AuthService signup run..");
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RestApiException(ErrorCode.DUPLICATED_EMAIL);
-        }
+	@Transactional
+	public TokenResponse login(LoginRequest request) {
+		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+			request.getEmail(),
+			request.getPassword()
+		);
 
-        if (userRepository.existsByNickname(request.getNickname())) {
-            throw new RestApiException(ErrorCode.DUPLICATED_NICKNAME);
-        }
+		Authentication authenticate = authenticationManager.authenticate(authentication);
+		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        User user = User.builder()
-                .email(request.getEmail())
-                .nickname(request.getNickname())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.ROLE_USER)
-                .build();
-        User savedUser = userRepository.save(user);
-        return UserResponse.of(savedUser);
-    }
+		UserDetailsImpl userDetails = (UserDetailsImpl)authenticate.getPrincipal();
+		String accessToken = tokenProvider.createAccessToken(userDetails);
+		String refreshToken = tokenProvider.createAccessToken(userDetails);
 
-    @Transactional
-    public TokenResponse login(LoginRequest request) throws JsonProcessingException {
-        log.info("AuthService login run..");
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RestApiException(ErrorCode.WRONG_EMAIL_OR_PASSWORD));
+		refreshTokenRepository.save(RefreshToken.builder()
+			.userId(userDetails.getId())
+			.refresh(refreshToken)
+			.build());
 
-        // 비밀번호가 틀릴 경우
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword()))
-            throw new RestApiException(ErrorCode.WRONG_EMAIL_OR_PASSWORD);
-        UserResponse userResponse = UserResponse.of(user);
+		return TokenResponse.builder()
+			.accessToken(accessToken)
+			.refreshToken(refreshToken)
+			.build();
+	}
 
-        String atk = tokenProvider.createAccessToken(userResponse);
-        String rtk = tokenProvider.createRefreshToken(userResponse);
-        refreshTokenRepository.save(RefreshToken.builder()
-                .key(request.getEmail())
-                .value(rtk)
-                .build());
+	@Transactional
+	public TokenResponse reissueToken(ReissueTokenRequest request) {
+		RefreshToken refreshToken = refreshTokenRepository.findByRefresh(request.refreshToken())
+			.orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
 
-        return TokenResponse.builder()
-                .accessToken(atk)
-                .refreshToken(rtk)
-                .build();
-    }
+		User user = userRepository.findById(refreshToken.getUserId())
+			.orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
+		UserDetailsImpl userDetails = UserDetailsImpl.from(user);
 
-    @Transactional(readOnly = true)
-    public TokenResponse reissueAtk(UserResponse userResponse) throws JsonProcessingException {
-        RefreshToken refreshToken = refreshTokenRepository.findByKey(userResponse.email())
-                .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
+		String newAccessToken = tokenProvider.createAccessToken(userDetails);
+		String newRefreshToken = tokenProvider.createRefreshToken(userDetails);
 
-        if (Objects.isNull(refreshToken)) throw new RestApiException(ErrorCode.TOKEN_EXPIRED);
-        String accessToken = tokenProvider.createAccessToken(userResponse);
-        return new TokenResponse(accessToken, refreshToken.getValue());
-    }
+		refreshTokenRepository.delete(refreshToken);
+		refreshTokenRepository.save(RefreshToken.builder()
+			.userId(userDetails.getId())
+			.refresh(newRefreshToken)
+			.build());
+		return new TokenResponse(newAccessToken, newRefreshToken);
+	}
 
-    @Transactional
-    public void logout(String email) throws JsonProcessingException {
-        RefreshToken refreshToken = refreshTokenRepository.findByKey(email)
-                .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
-        refreshTokenRepository.delete(refreshToken);
-    }
+	@Transactional
+	public void logout(UserDetailsImpl userDetails) {
+	    RefreshToken refreshToken = refreshTokenRepository.findByUserId(userDetails.getId())
+	            .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
+	    refreshTokenRepository.delete(refreshToken);
+	}
 }
