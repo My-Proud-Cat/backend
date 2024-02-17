@@ -4,18 +4,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.study.proudcat.domain.user.dto.LoginRequest;
 import com.study.proudcat.domain.user.dto.ReissueTokenRequest;
-import com.study.proudcat.domain.user.dto.SignupRequest;
 import com.study.proudcat.domain.user.dto.TokenResponse;
-import com.study.proudcat.domain.user.dto.UserResponse;
-import com.study.proudcat.domain.user.entity.Provider;
 import com.study.proudcat.domain.user.entity.RefreshToken;
-import com.study.proudcat.domain.user.entity.Role;
 import com.study.proudcat.domain.user.entity.User;
 import com.study.proudcat.domain.user.repository.RefreshTokenRepository;
 import com.study.proudcat.domain.user.repository.UserRepository;
@@ -32,35 +27,13 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AuthService {
 	private final UserRepository userRepository;
-	private final PasswordEncoder passwordEncoder;
 	private final RefreshTokenRepository refreshTokenRepository;
 	private final JwtTokenProvider tokenProvider;
 	private final AuthenticationManager authenticationManager;
 
-	@Transactional
-	public UserResponse signup(SignupRequest request) {
-		log.info("AuthService signup run..");
-		if (userRepository.existsByEmailAndProvider(request.getEmail(), Provider.LOCAL)) {
-			throw new RestApiException(ErrorCode.DUPLICATED_EMAIL);
-		}
-		if (userRepository.existsByNickname(request.getNickname())) {
-			throw new RestApiException(ErrorCode.DUPLICATED_NICKNAME);
-		}
-
-		User user = User.builder()
-			.email(request.getEmail())
-			.nickname(request.getNickname())
-			.password(passwordEncoder.encode(request.getPassword()))
-			.role(Role.ROLE_USER)
-			.provider(Provider.LOCAL)
-			.build();
-		User savedUser = userRepository.save(user);
-		return UserResponse.of(savedUser);
-	}
 
 	@Transactional
 	public TokenResponse login(LoginRequest request) {
-		log.info("AuthService login run..");
 		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
 			request.getEmail(),
 			request.getPassword()

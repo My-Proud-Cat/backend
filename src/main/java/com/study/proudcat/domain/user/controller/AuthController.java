@@ -10,35 +10,23 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.study.proudcat.domain.user.dto.LoginRequest;
 import com.study.proudcat.domain.user.dto.ReissueTokenRequest;
-import com.study.proudcat.domain.user.dto.SignupRequest;
 import com.study.proudcat.domain.user.dto.TokenResponse;
-import com.study.proudcat.domain.user.dto.UserResponse;
 import com.study.proudcat.domain.user.service.AuthService;
 import com.study.proudcat.infra.security.auth.UserDetailsImpl;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
-@Slf4j
 public class AuthController {
 
 	private final AuthService authService;
 
-	@Operation(summary = "회원 가입")
-	@PostMapping("/sign-up")
-	public ResponseEntity<UserResponse> signup(@RequestBody SignupRequest request) {
-		log.info("AuthController signup run..");
-		return ResponseEntity.ok(authService.signup(request));
-	}
-
 	@Operation(summary = "로그인", description = "이메일, 비밀번호 입력 후 로그인 성공시 jwt 발급 됨")
 	@PostMapping("/login")
 	public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request){
-		log.info("AuthController login run..");
 		return ResponseEntity.ok(authService.login(request));
 	}
 
