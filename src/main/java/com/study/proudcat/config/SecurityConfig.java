@@ -87,7 +87,7 @@ public class SecurityConfig {
 		configureCommonSecuritySettings(http);
 		http.authorizeHttpRequests(authorize -> authorize
 				.anyRequest()
-				.authenticated() //
+				.permitAll() //TODO: 추후 권한 설정
 			)
 			.addFilterAfter(new JwtAuthenticationFilter(jwtTokenProvider), ExceptionTranslationFilter.class)
 			.exceptionHandling(exception -> {
