@@ -1,33 +1,3 @@
 spring:
-#  datasource:
-#    url: jdbc:h2:tcp://localhost/~/test
-#    driver-class-name: org.h2.Driver
-#    username: sa
-
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/proud-cat?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
-    username: root
-    password: 1234
-  jpa:
-    show-sql: true
-    open-in-view: false
-    hibernate:
-      ddl-auto: update
-  output:
-    ansi:
-      enabled: always
-
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 10MB
-      max-request-size: 10MB
-
-application:
-  security:
-    jwt:
-      secret-key: c2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQtc2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQK
-      expiration: 120000 # 5min
-      refresh-token:
-        expiration: 86400000 #1 day
+  profiles:
+    active: dev
