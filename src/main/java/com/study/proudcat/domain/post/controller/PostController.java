@@ -24,7 +24,7 @@ import com.study.proudcat.domain.post.dto.request.ModifyPostRequest;
 import com.study.proudcat.domain.post.dto.request.WritePostRequest;
 import com.study.proudcat.domain.post.dto.response.PostDetails;
 import com.study.proudcat.domain.post.service.PostService;
-import com.study.proudcat.domain.user.dto.UserPrincipalDetail;
+import com.study.proudcat.infra.security.auth.UserDetailsImpl;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -43,7 +43,7 @@ public class PostController {
 	public ResponseEntity<Void> writePost(
 		@RequestPart(value = "request") @Parameter(schema = @Schema(type = "string", format = "binary")) WritePostRequest request,
 		@RequestPart(value = "image") MultipartFile image,
-		@AuthenticationPrincipal UserPrincipalDetail user) throws IOException {
+		@AuthenticationPrincipal UserDetailsImpl user) throws IOException {
 		postService.writePost(request, image, user.getUsername());
 		return ResponseEntity.noContent().build();
 	}
@@ -67,7 +67,7 @@ public class PostController {
 	@Operation(summary = "게시물 수정", description = "게시물 수정 메소드입니다.")
 	@PutMapping("/{postId}")
 	public ResponseEntity<Void> modifyPost(@PathVariable("postId") Long postId, @RequestBody ModifyPostRequest request,
-		@AuthenticationPrincipal UserPrincipalDetail user) {
+		@AuthenticationPrincipal UserDetailsImpl user) {
 		postService.modifyPost(postId, request, user.getUsername());
 		return ResponseEntity.noContent().build();
 	}
@@ -75,7 +75,7 @@ public class PostController {
 	@Operation(summary = "게시물 삭제", description = "게시물 삭제 메소드입니다.")
 	@DeleteMapping("/{postId}")
 	public ResponseEntity<Void> deletePost(@PathVariable("postId") Long postId,
-		@AuthenticationPrincipal UserPrincipalDetail user) {
+		@AuthenticationPrincipal UserDetailsImpl user) {
 		postService.deletePost(postId, user.getUsername());
 		return ResponseEntity.noContent().build();
 	}

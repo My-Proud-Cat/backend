@@ -1,7 +1,8 @@
 package com.study.proudcat.domain.post.controller;
 
 import com.study.proudcat.domain.post.service.HeartService;
-import com.study.proudcat.domain.user.dto.UserPrincipalDetail;
+import com.study.proudcat.infra.security.auth.UserDetailsImpl;
+
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +19,9 @@ public class HeartController {
     @GetMapping("/{postId}/heart")
     public ResponseEntity<?> addHeart(
             @PathVariable(name = "postId") Long postId,
-            @AuthenticationPrincipal UserPrincipalDetail user
+            @AuthenticationPrincipal UserDetailsImpl user
             ) {
-        boolean isPushed = heartService.pushHeartBtn(postId, user.getUserId());
+        boolean isPushed = heartService.pushHeartBtn(postId, user.getId());
         return ResponseEntity.ok(isPushed);
     }
 }
