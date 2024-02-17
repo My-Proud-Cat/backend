@@ -48,13 +48,12 @@ public class AuthController {
 		return ResponseEntity.ok(authService.reissueToken(request));
 	}
 
-	// @Operation(summary = "로그아웃")
-	// @GetMapping("/logout")
-	// public ResponseEntity<?> logout(@AuthenticationPrincipal UserPrincipalDetail userPrincipalDetail) throws
-	// 	JsonProcessingException {
-	// 	authService.logout(userPrincipalDetail.getUsername());
-	// 	return ResponseEntity.ok("로그아웃 되었습니다.");
-	// }
+	@Operation(summary = "로그아웃")
+	@GetMapping("/logout")
+	public ResponseEntity<?> logout(@AuthenticationPrincipal UserDetailsImpl userDetails){
+		authService.logout(userDetails);
+		return ResponseEntity.ok("로그아웃 되었습니다.");
+	}
 
 	@Operation(summary = "사용자 정보 테스트 api", description = "로그인한 사용자의 닉네임을 반환하는 테스트 api")
 	@GetMapping("/user-detail")

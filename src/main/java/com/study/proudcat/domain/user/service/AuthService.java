@@ -104,10 +104,10 @@ public class AuthService {
 		return new TokenResponse(newAccessToken, newRefreshToken);
 	}
 
-	// @Transactional
-	// public void logout(String email) throws JsonProcessingException {
-	//     RefreshToken refreshToken = refreshTokenRepository.findById(email)
-	//             .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
-	//     refreshTokenRepository.delete(refreshToken);
-	// }
+	@Transactional
+	public void logout(UserDetailsImpl userDetails) {
+	    RefreshToken refreshToken = refreshTokenRepository.findByUserId(userDetails.getId())
+	            .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
+	    refreshTokenRepository.delete(refreshToken);
+	}
 }
