@@ -86,11 +86,10 @@ public class AuthService {
 
 	@Transactional
 	public TokenResponse reissueToken(ReissueTokenRequest request) {
-		Long userId = tokenProvider.getUserId(request.refreshToken());
-		RefreshToken refreshToken = refreshTokenRepository.findById(userId)
+		RefreshToken refreshToken = refreshTokenRepository.findByRefresh(request.refreshToken())
 			.orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
 
-		User user = userRepository.findById(userId)
+		User user = userRepository.findById(refreshToken.getUserId())
 			.orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
 		UserDetailsImpl userDetails = UserDetailsImpl.from(user);
 
