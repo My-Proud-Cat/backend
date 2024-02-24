@@ -17,14 +17,16 @@ import lombok.Getter;
 public class UserDetailsImpl implements UserDetails {
 	private Long id;
 	private String email;
+	private String nickname;
 	private String password;
 	private Collection<? extends GrantedAuthority> authorities;
 	private Provider provider;
 
 	@Builder
-	public UserDetailsImpl(Long id, String email, String password, Collection<? extends GrantedAuthority> authorities, Provider provider) {
+	public UserDetailsImpl(Long id, String email, String nickname, String password, Collection<? extends GrantedAuthority> authorities, Provider provider) {
 		this.id = id;
 		this.email = email;
+		this.nickname = nickname;
 		this.password = password;
 		this.authorities = authorities;
 		this.provider = provider;
@@ -37,6 +39,7 @@ public class UserDetailsImpl implements UserDetails {
 		return UserDetailsImpl.builder()
 			.id(user.getId())
 			.email(user.getEmail())
+			.nickname(user.getNickname())
 			.password(user.getPassword())
 			.provider(user.getProvider())
 			.authorities(authorities)

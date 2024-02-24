@@ -47,6 +47,6 @@ public class AuthController {
 	@GetMapping("/user-detail")
 	public ResponseEntity<String> getUserDetail(
 		@AuthenticationPrincipal UserDetailsImpl userPrincipalDetail) {
-		return ResponseEntity.ok(userPrincipalDetail.getUsername());
+		return ResponseEntity.ok(userPrincipalDetail.getNickname());
 	}
 }
