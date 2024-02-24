@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.study.proudcat.domain.user.dto.LoginRequest;
 import com.study.proudcat.domain.user.dto.ReissueTokenRequest;
 import com.study.proudcat.domain.user.dto.TokenResponse;
+import com.study.proudcat.domain.user.dto.UserResponse;
 import com.study.proudcat.domain.user.service.AuthService;
 import com.study.proudcat.infra.security.auth.UserDetailsImpl;
 
@@ -45,8 +46,8 @@ public class AuthController {
 
 	@Operation(summary = "사용자 정보 테스트 api", description = "로그인한 사용자의 닉네임을 반환하는 테스트 api")
 	@GetMapping("/user-detail")
-	public ResponseEntity<String> getUserDetail(
-		@AuthenticationPrincipal UserDetailsImpl userPrincipalDetail) {
-		return ResponseEntity.ok(userPrincipalDetail.getNickname());
+	public ResponseEntity<UserResponse> getUserDetail(
+		@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		return ResponseEntity.ok(new UserResponse(userDetails.getId(), userDetails.getEmail(), userDetails.getNickname()));
 	}
 }
