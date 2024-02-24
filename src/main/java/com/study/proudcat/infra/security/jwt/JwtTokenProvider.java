@@ -58,6 +58,7 @@ public class JwtTokenProvider {
 			.expiration(new Date(System.currentTimeMillis() + tokenExpiration))
 			.claim(AUTHENTICATION_CLAIM_NAME, authorities)
 			.claim("id", userDetails.getId())
+			.claim("nickname", userDetails.getNickname())
 			.signWith(getSignInKey())
 			.compact();
 	}
@@ -76,6 +77,7 @@ public class JwtTokenProvider {
 		UserDetailsImpl principal = UserDetailsImpl.builder()
 			.id(getUserId(accessToken))
 			.email(claims.getSubject())
+			.nickname(getUserNickname(accessToken))
 			.authorities(authorities)
 			.build();
 		return new UsernamePasswordAuthenticationToken(principal, accessToken, authorities);
@@ -99,6 +101,11 @@ public class JwtTokenProvider {
 	public Long getUserId(String token) {
 		Claims claims = verifyAndExtractClaims(token);
 		return claims.get("id", Long.class);
+	}
+
+	public String getUserNickname(String token) {
+		Claims claims = verifyAndExtractClaims(token);
+		return claims.get("nickname", String.class);
 	}
 
 	private SecretKey getSignInKey() {
