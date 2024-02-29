@@ -23,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private static final String AUTHENTICATION_HEADER = "Authorization";
-	private static final String AUTHENTICATION_SCHEME = "Bearer ";
 	private final JwtTokenProvider jwtTokenProvider;
 
 	@Override
@@ -48,10 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private String getToken(HttpServletRequest request) {
 		String bearerToken = request.getHeader(AUTHENTICATION_HEADER);
-		if (hasText(bearerToken) && bearerToken.startsWith(AUTHENTICATION_SCHEME)) {
-			return bearerToken.substring(AUTHENTICATION_SCHEME.length());
-		}
-		return null;
+		return jwtTokenProvider.getTokenBearer(bearerToken);
 	}
 }
 
