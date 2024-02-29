@@ -17,6 +17,9 @@ public enum ErrorCode {
     EMPTY_FILE(HttpStatus.BAD_REQUEST, "첨부된 파일이 없습니다."),
     NOT_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "이미지 파일이 아닙니다. 이미지만 등록 가능합니다"),
 
+    REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "다시 로그인 해주세요."),
+    LOGOUT_FORBIDDEN(HttpStatus.FORBIDDEN, "로그아웃 에러가 발생했습니다. 권한이 없습니다."),
+    ALREADY_LOGGED_OUT(HttpStatus.UNAUTHORIZED, "이미 로그아웃된 사용자입니다. 재로그인 해주세요"),
     TOKEN_EXPIRED(HttpStatus.FORBIDDEN, "인증 정보가 만료되었습니다"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버에 오류가 발생했습니다."),
     INVALID_REQUEST(HttpStatus.METHOD_NOT_ALLOWED, "잘못된 요청입니다.")

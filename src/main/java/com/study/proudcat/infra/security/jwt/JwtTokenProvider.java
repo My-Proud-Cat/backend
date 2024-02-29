@@ -1,5 +1,7 @@
 package com.study.proudcat.infra.security.jwt;
 
+import static org.springframework.util.StringUtils.*;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -14,6 +16,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import com.study.proudcat.domain.user.repository.RedisRepository;
+import com.study.proudcat.infra.exception.ErrorCode;
+import com.study.proudcat.infra.exception.RestApiException;
 import com.study.proudcat.infra.security.auth.UserDetailsImpl;
 
 import io.jsonwebtoken.Claims;
@@ -28,6 +33,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
 	private static final String AUTHENTICATION_CLAIM_NAME = "roles";
+	private static final String AUTHENTICATION_SCHEME = "Bearer ";
+	private final RedisRepository redisRepository;
 
 	@Value("${application.security.jwt.secret-key}")
 	private String secretKey;
@@ -92,6 +99,9 @@ public class JwtTokenProvider {
 	}
 
 	public void validateToken(String token) {
+		if (redisRepository.hasKeyBlackList(token)) {
+			throw new RestApiException(ErrorCode.ALREADY_LOGGED_OUT);
+		}
 		Jwts.parser()
 			.verifyWith(getSignInKey())
 			.build()
@@ -108,9 +118,15 @@ public class JwtTokenProvider {
 		return claims.get("nickname", String.class);
 	}
 
+	public String getTokenBearer(String bearerTokenHeader) {
+		if (hasText(bearerTokenHeader) && bearerTokenHeader.startsWith(AUTHENTICATION_SCHEME)) {
+			return bearerTokenHeader.substring(AUTHENTICATION_SCHEME.length());
+		}
+		return null;
+	}
+
 	private SecretKey getSignInKey() {
 		byte[] keyBytes = Decoders.BASE64URL.decode(secretKey);
 		return Keys.hmacShaKeyFor(keyBytes);
 	}
-
 }

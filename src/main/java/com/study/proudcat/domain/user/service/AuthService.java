@@ -10,9 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.study.proudcat.domain.user.dto.LoginRequest;
 import com.study.proudcat.domain.user.dto.ReissueTokenRequest;
 import com.study.proudcat.domain.user.dto.TokenResponse;
-import com.study.proudcat.domain.user.entity.RefreshToken;
 import com.study.proudcat.domain.user.entity.User;
-import com.study.proudcat.domain.user.repository.RefreshTokenRepository;
+import com.study.proudcat.domain.user.repository.RedisRepository;
 import com.study.proudcat.domain.user.repository.UserRepository;
 import com.study.proudcat.infra.exception.ErrorCode;
 import com.study.proudcat.infra.exception.RestApiException;
@@ -27,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AuthService {
 	private final UserRepository userRepository;
-	private final RefreshTokenRepository refreshTokenRepository;
+	private final RedisRepository redisRepository;
 	private final JwtTokenProvider tokenProvider;
 	private final AuthenticationManager authenticationManager;
 
@@ -46,10 +45,7 @@ public class AuthService {
 		String accessToken = tokenProvider.createAccessToken(userDetails);
 		String refreshToken = tokenProvider.createAccessToken(userDetails);
 
-		refreshTokenRepository.save(RefreshToken.builder()
-			.userId(userDetails.getId())
-			.refresh(refreshToken)
-			.build());
+		redisRepository.saveRefreshToken(refreshToken, userDetails.getId());
 
 		return TokenResponse.builder()
 			.accessToken(accessToken)
@@ -59,28 +55,36 @@ public class AuthService {
 
 	@Transactional
 	public TokenResponse reissueToken(ReissueTokenRequest request) {
-		RefreshToken refreshToken = refreshTokenRepository.findByRefresh(request.refreshToken())
-			.orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
-
-		User user = userRepository.findById(refreshToken.getUserId())
+		Object userIdObj = redisRepository.get(request.refreshToken());
+		if (userIdObj == null) {
+			throw new RestApiException(ErrorCode.REFRESH_TOKEN_EXPIRED);
+		}
+		Long userId = Long.parseLong(userIdObj.toString());
+		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
 		UserDetailsImpl userDetails = UserDetailsImpl.from(user);
 
 		String newAccessToken = tokenProvider.createAccessToken(userDetails);
 		String newRefreshToken = tokenProvider.createRefreshToken(userDetails);
 
-		refreshTokenRepository.delete(refreshToken);
-		refreshTokenRepository.save(RefreshToken.builder()
-			.userId(userDetails.getId())
-			.refresh(newRefreshToken)
-			.build());
+		redisRepository.delete(request.refreshToken());
+		redisRepository.saveRefreshToken(newRefreshToken, userId);
 		return new TokenResponse(newAccessToken, newRefreshToken);
 	}
 
 	@Transactional
-	public void logout(UserDetailsImpl userDetails) {
-	    RefreshToken refreshToken = refreshTokenRepository.findByUserId(userDetails.getId())
-	            .orElseThrow(() -> new RestApiException(ErrorCode.NO_TARGET));
-	    refreshTokenRepository.delete(refreshToken);
+	public void logout(String refreshToken, String authorizationToken, Long userId) {
+		if (redisRepository.hasKey(refreshToken)) {
+			Long userIdByRefresh = Long.valueOf(redisRepository.get(refreshToken).toString());
+			if (userIdByRefresh.equals(userId)) {
+				String accessToken = tokenProvider.getTokenBearer(authorizationToken);
+				redisRepository.delete(refreshToken);
+				redisRepository.saveBlackList(accessToken, "accessToken");
+			} else {
+				throw new RestApiException(ErrorCode.LOGOUT_FORBIDDEN);
+			}
+		} else {
+			throw new RestApiException(ErrorCode.REFRESH_TOKEN_EXPIRED);
+		}
 	}
 }

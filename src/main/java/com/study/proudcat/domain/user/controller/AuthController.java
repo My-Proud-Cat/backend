@@ -2,9 +2,11 @@ package com.study.proudcat.domain.user.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -39,8 +41,11 @@ public class AuthController {
 
 	@Operation(summary = "로그아웃")
 	@GetMapping("/logout")
-	public ResponseEntity<?> logout(@AuthenticationPrincipal UserDetailsImpl userDetails){
-		authService.logout(userDetails);
+	public ResponseEntity<?> logout(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
+		@RequestHeader("Authorization") String authorizationToken,
+		@CookieValue(name = "refreshToken") String refreshToken){
+		authService.logout(refreshToken, authorizationToken, userDetails.getId());
 		return ResponseEntity.ok("로그아웃 되었습니다.");
 	}
 
