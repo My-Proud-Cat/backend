@@ -1,5 +1,8 @@
 package com.study.proudcat.domain.user.controller;
 
+import java.io.IOException;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -16,8 +19,12 @@ import com.study.proudcat.domain.user.dto.TokenResponse;
 import com.study.proudcat.domain.user.dto.UserResponse;
 import com.study.proudcat.domain.user.service.AuthService;
 import com.study.proudcat.infra.security.auth.UserDetailsImpl;
+import com.study.proudcat.infra.utils.HttpResponseUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -29,8 +36,17 @@ public class AuthController {
 
 	@Operation(summary = "로그인", description = "이메일, 비밀번호 입력 후 로그인 성공시 jwt 발급 됨")
 	@PostMapping("/login")
-	public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request){
-		return ResponseEntity.ok(authService.login(request));
+	public void login(@RequestBody LoginRequest request, HttpServletResponse response) throws
+		IOException {
+		TokenResponse tokenResponse = authService.login(request);
+
+		Cookie refreshTokenCookie = new Cookie("refreshToken", tokenResponse.getRefreshToken());
+		refreshTokenCookie.setSecure(true);
+		refreshTokenCookie.setHttpOnly(true);
+		refreshTokenCookie.setPath("/");
+
+		response.addCookie(refreshTokenCookie);
+		HttpResponseUtil.setSuccessResponse(response, HttpStatus.OK, tokenResponse.getAccessToken());
 	}
 
 	@Operation(summary = "토큰 재발급", description = "accessToken, refreshToken을 재발급하는 기능")
@@ -39,13 +55,15 @@ public class AuthController {
 		return ResponseEntity.ok(authService.reissueToken(request));
 	}
 
-	@Operation(summary = "로그아웃")
+	@Operation(summary = "로그아웃") // TODO: 오류 해결
 	@GetMapping("/logout")
 	public ResponseEntity<?> logout(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@RequestHeader("Authorization") String authorizationToken,
+		HttpServletRequest request,
+		//@RequestHeader("Authorization") String authorizationToken,
 		@CookieValue(name = "refreshToken") String refreshToken){
-		authService.logout(refreshToken, authorizationToken, userDetails.getId());
+		String at = request.getHeader("Authorization");
+		authService.logout(refreshToken, at, userDetails.getId());
 		return ResponseEntity.ok("로그아웃 되었습니다.");
 	}
 
